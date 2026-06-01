@@ -1,0 +1,77 @@
+@extends('layouts.app')
+
+@section('title', $post->title)
+
+@section('content')
+
+    <!-- Bouton de retour -->
+    <div class="back-link-wrapper">
+        <a href="{{ url('/') }}" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Retour aux articles
+        </a>
+    </div>
+
+    <!-- En-tête de l'article -->
+    <article class="post-detail-header">
+        <h1 class="post-detail-title gradient-title">{{ $post->title }}</h1>
+        
+        <div class="post-detail-meta">
+            <div class="post-detail-meta-item">
+                <span class="author-avatar">{{ strtoupper(substr($post->author, 0, 1)) }}</span>
+                <span>Rédigé par <strong>{{ $post->author }}</strong></span>
+            </div>
+            <div class="post-detail-meta-item">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <span>Publié le {{ $post->created_at->format('d F Y') }}</span>
+            </div>
+        </div>
+    </article>
+
+    <!-- Image grand format si existante -->
+    @if($post->image)
+        <div class="post-detail-hero-image">
+            <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
+        </div>
+    @endif
+
+    <!-- Contenu de l'article -->
+    <section class="post-detail-content">
+        {!! nl2br(e($post->content)) !!}
+    </section>
+
+    <!-- Actions d'administration (Modifier et Supprimer) -->
+    <div class="post-detail-actions">
+        <a href="{{ route('posts.edit', $post->id) }}" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Modifier l'article
+        </a>
+        
+        <!-- Formulaire de suppression avec protection CSRF et confirmation JS -->
+        <form action="{{ route('posts.destroy', $post->id) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article définitivement ? Cette action est irréversible.')">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                Supprimer l'article
+            </button>
+        </form>
+    </div>
+
+@endsection
