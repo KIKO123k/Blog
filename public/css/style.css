@@ -1,36 +1,44 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-    --bg-base: #060913;
-    --bg-surface: rgba(15, 23, 42, 0.6);
-    --bg-card: rgba(23, 37, 84, 0.15);
-    --bg-card-hover: rgba(30, 41, 59, 0.5);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(99, 102, 241, 0.4);
-    --border-glow: rgba(99, 102, 241, 0.15);
-    --text-primary: #f8fafc;
-    --text-secondary: #cbd5e1;
+    --bg-base: #f1f5f9;
+    --bg-surface: rgba(255, 255, 255, 0.7);
+    --bg-card: rgba(255, 255, 255, 0.4);
+    --bg-card-hover: rgba(255, 255, 255, 0.85);
+    --border-color: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(79, 70, 229, 0.4);
+    --border-glow: rgba(79, 70, 229, 0.08);
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
     --text-muted: #64748b;
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --primary-glow: rgba(99, 102, 241, 0.35);
-    --accent: #a855f7;
-    --accent-glow: rgba(168, 85, 247, 0.3);
-    --gradient-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    --gradient-text: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-    --success: #10b981;
-    --success-bg: rgba(16, 185, 129, 0.12);
-    --error: #f43f5e;
-    --error-bg: rgba(244, 63, 94, 0.12);
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-glow: rgba(79, 70, 229, 0.15);
+    --accent: #7c3aed;
+    --accent-glow: rgba(124, 58, 237, 0.1);
+    --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --gradient-text: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --success: #059669;
+    --success-bg: rgba(5, 150, 105, 0.08);
+    --error: #e11d48;
+    --error-bg: rgba(225, 29, 72, 0.08);
     --radius-sm: 8px;
     --radius-md: 14px;
     --radius-lg: 24px;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --shadow-md: 0 10px 20px -3px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 25px 40px -10px rgba(0, 0, 0, 0.6);
+    --shadow-sm: 0 4px 6px -1px rgba(15, 23, 42, 0.03);
+    --shadow-md: 0 10px 25px -3px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 25px 40px -10px rgba(15, 23, 42, 0.06);
     --font-heading: 'Outfit', 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
+
+    /* Specific overrides for light mode components */
+    --hover-bg: rgba(15, 23, 42, 0.05);
+    --input-bg: rgba(15, 23, 42, 0.02);
+    --input-focus-bg: rgba(15, 23, 42, 0.05);
+    --btn-secondary-bg: rgba(15, 23, 42, 0.04);
+    --btn-secondary-hover-bg: rgba(15, 23, 42, 0.08);
+    --footer-bg: rgba(248, 250, 252, 0.95);
 }
 
 /* Reset & Base Styles */
@@ -43,9 +51,9 @@
 body {
     background-color: var(--bg-base);
     background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.5) 0px, transparent 100%);
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.06) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.4) 0px, transparent 100%);
     background-attachment: fixed;
     color: var(--text-primary);
     font-family: var(--font-body);
@@ -160,7 +168,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .nav-link:hover, .nav-link.active {
     color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--hover-bg);
 }
 
 .search-form {
@@ -173,7 +181,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .search-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--input-bg);
     border: 1px solid var(--border-color);
     padding: 10px 16px 10px 42px;
     border-radius: 30px;
@@ -187,7 +195,7 @@ h1, h2, h3, h4, h5, h6 {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 15px var(--border-glow);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--input-focus-bg);
 }
 
 .search-icon-btn {
@@ -421,13 +429,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--btn-secondary-bg);
     border: 1px solid var(--border-color);
     color: var(--text-secondary);
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--btn-secondary-hover-bg);
     color: var(--text-primary);
     border-color: var(--text-muted);
 }
@@ -544,7 +552,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .pagination li a:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--hover-bg);
     color: var(--text-primary);
 }
 
@@ -596,7 +604,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-control {
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--input-bg);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-sm);
     padding: 12px 16px;
@@ -610,7 +618,7 @@ h1, h2, h3, h4, h5, h6 {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 15px var(--border-glow);
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--input-focus-bg);
 }
 
 textarea.form-control {
@@ -626,7 +634,7 @@ textarea.form-control {
     text-align: center;
     cursor: pointer;
     transition: var(--transition);
-    background: rgba(255, 255, 255, 0.01);
+    background: var(--input-bg);
 }
 
 .file-upload-wrapper:hover {
@@ -665,7 +673,7 @@ textarea.form-control {
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--input-bg);
     padding: 12px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-color);
@@ -827,7 +835,7 @@ textarea.form-control {
 .main-footer {
     border-top: 1px solid var(--border-color);
     padding: 30px 0;
-    background: rgba(6, 9, 19, 0.8);
+    background: var(--footer-bg);
     text-align: center;
     font-size: 14px;
     color: var(--text-muted);
@@ -866,4 +874,212 @@ textarea.form-control {
     .form-container {
         padding: 24px 16px;
     }
+}
+
+/* Centered Auth Card Layout */
+.auth-container {
+    max-width: 480px;
+    margin: 40px auto;
+}
+
+.auth-footer-text {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.auth-footer-text a {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.auth-footer-text a:hover {
+    color: var(--text-primary);
+    text-decoration: underline;
+}
+
+.form-checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+    cursor: pointer;
+}
+
+.form-checkbox {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+/* Comments Section & Visitor Form */
+.comments-section {
+    max-width: 760px;
+    margin: 60px auto 0 auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: 45px;
+}
+
+.comments-title {
+    font-size: 24px;
+    margin-bottom: 24px;
+    font-family: var(--font-heading);
+    color: var(--text-primary);
+}
+
+.comments-list {
+    margin-bottom: 40px;
+}
+
+.comment-card {
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+    transition: var(--transition);
+}
+
+.comment-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm), 0 0 15px var(--border-glow);
+    background: var(--bg-card-hover);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-primary);
+}
+
+.comment-date {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.comment-body {
+    color: var(--text-secondary);
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.empty-comments {
+    text-align: center;
+    padding: 40px;
+    border-radius: var(--radius-md);
+    color: var(--text-muted);
+    font-style: italic;
+}
+
+.comment-form-wrapper {
+    border-radius: var(--radius-md);
+    padding: 30px;
+    margin-top: 50px;
+    border: 1px solid var(--border-color);
+}
+
+.form-subtitle {
+    font-size: 20px;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+    font-family: var(--font-heading);
+}
+
+/* User Dropdown */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    transition: var(--transition);
+}
+
+.dropdown-trigger:hover {
+    color: var(--text-primary);
+    background: var(--hover-bg);
+}
+
+.dropdown-chevron {
+    transition: var(--transition);
+}
+
+.user-dropdown:hover .dropdown-chevron {
+    transform: rotate(180deg);
+}
+
+.user-dropdown .dropdown-menu {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px;
+    min-width: 180px;
+    border-radius: var(--radius-sm);
+    padding: 8px 0;
+    box-shadow: var(--shadow-lg), 0 0 15px var(--border-glow);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.user-dropdown:hover .dropdown-menu {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    transition: var(--transition);
+    width: 100%;
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.dropdown-item:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.dropdown-item.text-danger {
+    color: var(--error);
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(244, 63, 94, 0.08);
+    color: var(--error);
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: 6px 0;
 }

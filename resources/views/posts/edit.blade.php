@@ -36,14 +36,7 @@
                 @enderror
             </div>
 
-            <!-- Champ : Auteur -->
-            <div class="form-group">
-                <label for="author" class="form-label">Nom de l'auteur</label>
-                <input type="text" name="author" id="author" class="form-control @error('author') is-invalid @enderror" value="{{ old('author', $post->author) }}" placeholder="Nom de l'auteur..." required>
-                @error('author')
-                    <span class="error-text">{{ $message }}</span>
-                @enderror
-            </div>
+
 
             <!-- Champ : Contenu -->
             <div class="form-group">

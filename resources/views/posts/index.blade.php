@@ -49,8 +49,8 @@
                     <div class="post-card-content">
                         <div class="post-card-meta">
                             <span class="post-card-author">
-                                <span class="author-avatar">{{ strtoupper(substr($post->author, 0, 1)) }}</span>
-                                {{ $post->author }}
+                                <span class="author-avatar">{{ strtoupper(substr($post->user?->name ?? 'Auteur anonyme', 0, 1)) }}</span>
+                                {{ $post->user?->name ?? 'Auteur anonyme' }}
                             </span>
                             <span>{{ $post->created_at->format('d/m/Y') }}</span>
                         </div>

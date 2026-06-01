@@ -15,8 +15,9 @@ class PostController extends Controller
     {
         $search = $request->input('search');
 
-        // Retrieve posts with optional search filter by title, paginated and ordered by newest
-        $posts = Post::when($search, function ($query, $search) {
+        // Retrieve posts with relationship eager loading (N+1 query safety), paginated
+        $posts = Post::with('user')
+        ->when($search, function ($query, $search) {
             return $query->where('title', 'like', '%' . $search . '%');
         })
         ->orderBy('created_at', 'desc')
@@ -42,9 +43,11 @@ class PostController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'author' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
+
+        // Auto-assign the logged-in user as the author
+        $validated['user_id'] = auth()->id();
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('posts', 'public');
@@ -61,6 +64,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
+        // Load the user relation for the single post view
+        $post->load('user');
         return view('posts.show', compact('post'));
     }
 
@@ -69,6 +74,11 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
+        // Guard: Verify ownership
+        if ($post->user_id !== auth()->id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à modifier cet article.');
+        }
+
         return view('posts.edit', compact('post'));
     }
 
@@ -77,10 +87,14 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        // Guard: Verify ownership
+        if ($post->user_id !== auth()->id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à modifier cet article.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'author' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -104,6 +118,11 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
+        // Guard: Verify ownership
+        if ($post->user_id !== auth()->id()) {
+            abort(403, 'Vous n\'êtes pas autorisé à supprimer cet article.');
+        }
+
         if ($post->image && Storage::disk('public')->exists($post->image)) {
             Storage::disk('public')->delete($post->image);
         }

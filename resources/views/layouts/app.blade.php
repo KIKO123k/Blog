@@ -21,7 +21,44 @@
             
             <nav class="nav-links">
                 <a href="{{ url('/') }}" class="nav-link {{ Request::is('/') || Request::is('posts') ? 'active' : '' }}">Accueil</a>
-                <a href="{{ route('posts.create') }}" class="nav-link {{ Request::is('posts/create') ? 'active' : '' }}">Nouvel Article</a>
+                @auth
+                    <a href="{{ route('posts.create') }}" class="nav-link {{ Request::is('posts/create') ? 'active' : '' }}">Nouvel Article</a>
+                    <!-- Dropdown Board for User -->
+                    <div class="user-dropdown">
+                        <button class="dropdown-trigger">
+                            <span class="author-avatar" style="width: 24px; height: 24px; font-size: 10px;">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</span>
+                            {{ Auth::user()->name }}
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="dropdown-chevron">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu glass">
+                            <a href="{{ route('profile.edit') }}" class="dropdown-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="12" cy="7" r="4"></circle>
+                                </svg>
+                                Mon Profil
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <form action="{{ route('logout') }}" method="POST" style="display: block; width: 100%;">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger" style="width: 100%; border: none; background: none; font-family: inherit; font-size: inherit; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--error);">
+                                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                        <polyline points="16 17 21 12 16 7"></polyline>
+                                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                                    </svg>
+                                    Déconnexion
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endauth
+                @guest
+                    <a href="{{ route('login') }}" class="nav-link {{ Request::is('login') ? 'active' : '' }}">Connexion</a>
+                    <a href="{{ route('register') }}" class="nav-link {{ Request::is('register') ? 'active' : '' }}">Inscription</a>
+                @endguest
             </nav>
             
             <!-- Global Title Search Form -->
