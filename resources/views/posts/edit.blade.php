@@ -53,7 +53,7 @@
                 
                 @if($post->image)
                     <div class="current-image-preview">
-                        <img src="{{ asset('storage/' . $post->image) }}" alt="Aperçu actuel">
+                        <img src="{{ str_starts_with($post->image, 'http') ? $post->image : asset('storage/' . $post->image) }}" alt="Aperçu actuel">
                         <div>
                             <span class="form-label" style="margin-bottom: 2px;">Image actuelle</span>
                             <span style="font-size: 12px; color: var(--text-muted);">Cette image sera conservée si vous n'en téléversez pas une nouvelle.</span>

@@ -234,6 +234,58 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto;
 }
 
+/* Hero Search Styles */
+.hero-search {
+    margin: 32px auto 0 auto;
+    max-width: 480px;
+    width: 100%;
+}
+
+.hero-search .search-form {
+    max-width: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.hero-search .search-input {
+    padding: 14px 120px 14px 48px;
+    font-size: 16px;
+    border-radius: 50px;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-md);
+    width: 100%;
+}
+
+.hero-search .search-icon-left {
+    position: absolute;
+    left: 18px;
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+.hero-search .btn-search {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 40px;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.hero-search .btn-search:hover {
+    box-shadow: 0 0 15px var(--primary-glow);
+    transform: translateY(-50%) scale(1.02);
+}
+
 /* Blog Posts Grid */
 .posts-header {
     display: flex;
@@ -1082,4 +1134,145 @@ textarea.form-control {
     height: 1px;
     background: var(--border-color);
     margin: 6px 0;
+}
+
+/* Landing Page Layout Styles */
+.landing-hero {
+    text-align: center;
+    padding: 80px 0 60px 0;
+    max-width: 800px;
+    margin: 0 auto 60px auto;
+}
+
+.landing-hero-title {
+    font-size: 54px;
+    line-height: 1.15;
+    margin-bottom: 24px;
+    font-weight: 800;
+}
+
+.landing-hero-subtitle {
+    font-size: 20px;
+    color: var(--text-secondary);
+    max-width: 650px;
+    margin: 0 auto 40px auto;
+    line-height: 1.6;
+}
+
+.landing-hero-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Features Section */
+.features-section {
+    padding: 60px 0;
+    margin-bottom: 60px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    padding: 40px 30px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-lg), 0 0 20px var(--border-glow);
+    background: var(--bg-card-hover);
+}
+
+.feature-icon {
+    font-size: 40px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.feature-card h3 {
+    font-size: 22px;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.feature-card p {
+    font-size: 15px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Stats Section */
+.stats-section {
+    padding: 60px 0;
+    margin-bottom: 60px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+}
+
+.stat-card {
+    padding: 30px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
+}
+
+.stat-value {
+    display: block;
+    font-size: 44px;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Call to Action Banner */
+.landing-cta {
+    padding: 60px 40px;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    margin: 60px auto 40px auto;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    overflow: hidden;
+}
+
+.landing-cta h2 {
+    font-size: 36px;
+    margin-bottom: 16px;
+}
+
+.landing-cta p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.text-center {
+    text-align: center;
 }

@@ -6,7 +6,7 @@
 
     <!-- Bouton de retour -->
     <div class="back-link-wrapper">
-        <a href="{{ url('/') }}" class="back-link">
+        <a href="{{ route('posts.index') }}" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -39,7 +39,7 @@
     <!-- Image grand format si existante -->
     @if($post->image)
         <div class="post-detail-hero-image">
-            <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
+            <img src="{{ str_starts_with($post->image, 'http') ? $post->image : asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
         </div>
     @endif
 

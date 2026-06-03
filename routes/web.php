@@ -5,6 +5,7 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\HomeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,7 +14,8 @@ use App\Http\Controllers\ProfileController;
 */
 
 // --- Public Routes ---
-Route::get('/', [PostController::class, 'index'])->name('posts.index');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('posts', [PostController::class, 'index'])->name('posts.index');
 
 // --- Guest Only Routes (Login / Register) ---
 Route::middleware('guest')->group(function () {

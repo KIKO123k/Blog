@@ -1,13 +1,26 @@
 @extends('layouts.app')
 
-@section('title', 'Accueil')
+@section('title', 'Articles')
 
 @section('content')
 
     <!-- Hero / Section d'introduction -->
     <section class="hero">
-        <h1>Découvrez nos <span class="gradient-title">Publications</span></h1>
-        <p>Projet universitaire de Blog développé en architecture MVC avec Laravel 12 et du CSS moderne entièrement fait maison.</p>
+        <h1>Tous nos <span class="gradient-title">Articles</span></h1>
+        
+        <!-- Search bar inside Hero -->
+        <div class="hero-search">
+            <form action="{{ route('posts.index') }}" method="GET" class="search-form">
+                <span class="search-icon-left">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                <input type="text" name="search" placeholder="Rechercher par titre..." class="search-input" value="{{ request('search') }}">
+                <button type="submit" class="btn-search">Rechercher</button>
+            </form>
+        </div>
     </section>
 
     <!-- Header de la section Posts (Recherche & Ajout) -->
@@ -37,7 +50,7 @@
                     <!-- Cover Image / Fallback Placeholder -->
                     <div class="post-card-image">
                         @if($post->image)
-                            <img src="{{ asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
+                            <img src="{{ str_starts_with($post->image, 'http') ? $post->image : asset('storage/' . $post->image) }}" alt="{{ $post->title }}">
                         @else
                             <div class="image-fallback">
                                 {{ substr($post->title, 0, 2) }}
@@ -112,7 +125,7 @@
             @if($search)
                 <h3>Aucun article trouvé</h3>
                 <p>Nous n'avons trouvé aucun article correspondant à la recherche "{{ $search }}".</p>
-                <a href="{{ url('/') }}" class="btn btn-secondary">Voir tous les articles</a>
+                <a href="{{ route('posts.index') }}" class="btn btn-secondary">Voir tous les articles</a>
             @else
                 <h3>Aucun article publié</h3>
                 <p>Il n'y a pas encore d'article sur ce blog. Soyez le premier à en rédiger un !</p>

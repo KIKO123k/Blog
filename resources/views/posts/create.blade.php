@@ -6,7 +6,7 @@
 
     <!-- Bouton de retour -->
     <div class="back-link-wrapper">
-        <a href="{{ url('/') }}" class="back-link">
+        <a href="{{ route('posts.index') }}" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -66,7 +66,7 @@
 
             <!-- Boutons d'action -->
             <div class="form-actions">
-                <a href="{{ url('/') }}" class="btn btn-secondary">Annuler</a>
+                <a href="{{ route('posts.index') }}" class="btn btn-secondary">Annuler</a>
                 <button type="submit" class="btn btn-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"></line>

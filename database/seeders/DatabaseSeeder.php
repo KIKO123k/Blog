@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Post;
+use App\Models\Comment;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Carbon;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +19,200 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Ensure user with ID 1 exists
+        $user = User::find(1);
+        if (!$user) {
+            $user = User::create([
+                'id' => 1,
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // 1b. Seed 20 other random users
+        User::factory(20)->create();
+
+        // 2. Generate 100 unique real-looking article titles in French
+        $prefixes = [
+            "Comprendre", "Le guide ultime de", "Optimiser", "Introduction à", 
+            "Les secrets de", "Les nouveautés de", "Pourquoi utiliser", "Comment maîtriser", 
+            "Tout savoir sur", "Débuter avec", "Les meilleures pratiques pour"
+        ];
+        
+        $subjects = [
+            "Laravel 12", "l'architecture MVC", "Tailwind CSS", "l'accessibilité web", 
+            "la sécurité des API", "Docker et les conteneurs", "la méthode Pomodoro", 
+            "la productivité en télétravail", "les bases de données", "TypeScript et Node.js", 
+            "React et le State Management", "l'intégration continue (CI/CD)", "le design d'interface (UI/UX)"
+        ];
+        
+        $suffixes = [
+            "en 2026", "pour les développeurs", "pour les débutants", "de manière efficace", 
+            "dans vos projets", "sans effort", "étape par étape", "comme un pro", 
+            "sur le web", "pour le futur"
+        ];
+
+        $generatedTitles = [];
+        while (count($generatedTitles) < 100) {
+            $prefix = $prefixes[array_rand($prefixes)];
+            $subject = $subjects[array_rand($subjects)];
+            $suffix = $suffixes[array_rand($suffixes)];
+            
+            $title = "{$prefix} {$subject} {$suffix}";
+            $title = ucfirst($title);
+            
+            if (!in_array($title, $generatedTitles)) {
+                $generatedTitles[] = $title;
+            }
+        }
+
+        // 3. Map subjects to realistic introductory paragraphs
+        $intros = [
+            "Laravel 12" => "Laravel 12 est la dernière version du framework PHP le plus populaire au monde. Dans cet article, nous allons explorer en détail les nouvelles fonctionnalités, les améliorations de performance et comment mettre à jour vos applications existantes.",
+            "l'architecture MVC" => "L'architecture Model-View-Controller (MVC) est un modèle de conception logiciel largement utilisé pour développer des interfaces utilisateur. Découvrez comment structurer votre code de manière propre, testable et maintenable.",
+            "Tailwind CSS" => "Tailwind CSS a révolutionné la façon dont nous concevons les interfaces web. Avec son approche utility-first, il permet de créer des designs modernes et responsives extrêmement rapidement et sans quitter vos fichiers HTML.",
+            "l'accessibilité web" => "L'accessibilité web (a11y) garantit que les sites internet sont utilisables par tout le monde, y compris les personnes en situation de handicap. Cet article vous montre comment intégrer les standards du W3C dès le début.",
+            "la sécurité des API" => "Sécuriser une API REST est une priorité absolue pour protéger les données de vos utilisateurs. Nous passons en revue les meilleures pratiques, de l'authentification OAuth2 aux en-têtes CORS en passant par le rate limiting.",
+            "Docker et les conteneurs" => "Docker permet de standardiser l'environnement de développement et de production de vos applications. Apprenez à créer vos propres conteneurs et à orchestrer vos services comme un professionnel.",
+            "la méthode Pomodoro" => "La méthode Pomodoro est une technique de gestion du temps simple et redoutable pour lutter contre la procrastination. Découvrez comment l'appliquer au quotidien pour doubler votre concentration.",
+            "la productivité en télétravail" => "Travailler depuis chez soi présente de nombreux défis en matière d'organisation. Nous avons rassemblé les meilleures astuces pour maintenir un équilibre sain entre vie professionnelle et personnelle.",
+            "les bases de données" => "Les bases de données sont le cœur de toute application web moderne. Apprenez à concevoir des schémas optimisés, à écrire des requêtes performantes et à utiliser l'indexation de manière intelligente.",
+            "TypeScript et Node.js" => "TypeScript apporte la sécurité du typage statique au monde dynamique de JavaScript. Découvrez comment configurer un environnement de développement moderne avec Node.js et TypeScript.",
+            "React et le State Management" => "La gestion de l'état dans les applications React peut rapidement devenir complexe. Cet article explore les différentes solutions disponibles, de l'API Context aux outils comme Redux Toolkit.",
+            "l'intégration continue (CI/CD)" => "Automatiser le build, les tests et le déploiement de vos applications permet de gagner un temps précieux et de réduire les erreurs. Voici comment mettre en place un pipeline CI/CD moderne.",
+            "le design d'interface (UI/UX)" => "L'interface utilisateur (UI) et l'expérience utilisateur (UX) font la différence entre un produit moyen et un produit exceptionnel. Découvrez les grands principes du design web moderne."
+        ];
+
+        // 4. Curated high-quality, beautiful images based on subjects
+        $techImages = [
+            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop",
+        ];
+        
+        $designImages = [
+            "https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop",
+        ];
+        
+        $productivityImages = [
+            "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1488998469330-e6aa06a400cf?w=800&auto=format&fit=crop",
+        ];
+        
+        $databaseImages = [
+            "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=800&auto=format&fit=crop",
+        ];
+        
+        $learningImages = [
+            "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&auto=format&fit=crop",
+            "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=800&auto=format&fit=crop",
+        ];
+
+        $getImageForTitle = function($title) use ($techImages, $designImages, $productivityImages, $databaseImages, $learningImages) {
+            $t = strtolower($title);
+            if (str_contains($t, 'laravel') || str_contains($t, 'api') || str_contains($t, 'docker') || str_contains($t, 'typescript') || str_contains($t, 'react') || str_contains($t, 'ci/cd')) {
+                return $techImages[array_rand($techImages)];
+            }
+            if (str_contains($t, 'design') || str_contains($t, 'ux') || str_contains($t, 'ui') || str_contains($t, 'tailwind')) {
+                return $designImages[array_rand($designImages)];
+            }
+            if (str_contains($t, 'pomodoro') || str_contains($t, 'productivité') || str_contains($t, 'télétravail')) {
+                return $productivityImages[array_rand($productivityImages)];
+            }
+            if (str_contains($t, 'bases de données') || str_contains($t, 'mvc') || str_contains($t, 'sql')) {
+                return $databaseImages[array_rand($databaseImages)];
+            }
+            return $learningImages[array_rand($learningImages)];
+        };
+
+        // 5. Create post models with ordered dates from 1/1/2025 to now
+        $posts = [];
+        $startDate = Carbon::create(2025, 1, 1, 9, 0, 0);
+        $endDate = Carbon::now();
+        $totalSeconds = $startDate->diffInSeconds($endDate);
+        $totalPosts = count($generatedTitles);
+        $intervalSeconds = $totalSeconds / max(1, $totalPosts - 1);
+        
+        foreach ($generatedTitles as $index => $title) {
+            $intro = "";
+            foreach ($intros as $subj => $text) {
+                if (stripos($title, $subj) !== false) {
+                    $intro = $text;
+                    break;
+                }
+            }
+            
+            if (empty($intro)) {
+                $intro = "Dans cet article complet, nous allons analyser en profondeur les aspects clés de ce sujet et vous donner des conseils pratiques pour vos projets quotidiens.";
+            }
+            
+            $paragraphs = fake('fr_FR')->paragraphs(rand(3, 5));
+            $bodyContent = $intro . "\n\n" . implode("\n\n", $paragraphs);
+            
+            $createdAt = $startDate->copy()->addSeconds(round($index * $intervalSeconds));
+            
+            $posts[] = [
+                'user_id' => rand(1, 21),
+                'title' => $title,
+                'content' => $bodyContent,
+                'image' => $getImageForTitle($title),
+                'created_at' => $createdAt,
+                'updated_at' => $createdAt,
+            ];
+        }
+
+        // 6. Bulk insert articles
+        foreach (array_chunk($posts, 25) as $chunk) {
+            Post::insert($chunk);
+        }
+
+        // 7. Seed comments for each post
+        $allPosts = Post::all();
+        $comments = [];
+        
+        $commentTexts = [
+            "Super article, merci beaucoup pour ces explications très claires !",
+            "Je me demandais s'il y avait des limitations avec cette approche sur de gros projets ?",
+            "Excellent guide, très bien structuré et facile à suivre.",
+            "Une petite question : comment gérez-vous ce cas particulier en production ?",
+            "Je cherchais justement une documentation simple sur ce sujet, merci !",
+            "Très intéressant ! J'ai hâte de lire votre prochain article.",
+            "Est-ce compatible avec les versions précédentes ?",
+            "Merci pour le partage, les exemples de code m'ont beaucoup aidé.",
+            "C'est exactement ce dont j'avais besoin pour mon projet universitaire.",
+            "Un grand merci pour ce tutoriel détaillé !",
+            "Article très complet et agréable à lire. Félicitations !"
+        ];
+        
+        foreach ($allPosts as $post) {
+            $numberOfComments = rand(1, 4);
+            for ($i = 0; $i < $numberOfComments; $i++) {
+                // Generate a comment date after the post date, but before now
+                $postDate = Carbon::parse($post->created_at);
+                $commentDate = $postDate->copy()->addMinutes(rand(10, 1440 * 5)); // 10 minutes to 5 days later
+                if ($commentDate->gt(Carbon::now())) {
+                    $commentDate = Carbon::now();
+                }
+                
+                $comments[] = [
+                    'post_id' => $post->id,
+                    'author_name' => fake('fr_FR')->name(),
+                    'content' => $commentTexts[array_rand($commentTexts)],
+                    'created_at' => $commentDate,
+                    'updated_at' => $commentDate,
+                ];
+            }
+        }
+        
+        // Insert comments in chunks of 50
+        foreach (array_chunk($comments, 50) as $chunk) {
+            Comment::insert($chunk);
+        }
     }
 }
