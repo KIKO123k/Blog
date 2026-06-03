@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\FooterLink;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share footer links across all views using the layout
+        View::composer('layouts.app', function ($view) {
+            $footerLinks = FooterLink::orderBy('order')->get();
+            $view->with('footerLinks', $footerLinks);
+        });
     }
 }

@@ -118,9 +118,67 @@
     <!-- Footer -->
     <footer class="main-footer">
         <div class="container">
-            <p>&copy; {{ date('Y') }} EduBlog.</p>
+
+            <!-- Footer Top: Last Edit + License Notice -->
+            <div class="footer-notice">
+                <p>
+                    Le contenu de ce site est disponible sous la licence
+                    <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener">Creative Commons Attribution-ShareAlike 4.0</a>.
+                    En utilisant ce site, vous acceptez les
+                    <a href="#">Conditions d'utilisation</a> et la
+                    <a href="#">Politique de confidentialité</a>.
+                    <strong>EduBlog®</strong> est un projet académique à but non lucratif.
+                </p>
+            </div>
+
+            <!-- Footer Links -->
+<nav class="footer-links">
+    @foreach($footerLinks as $link)
+        <a href="{{ $link->url }}">{{ $link->title }}</a>
+    @endforeach
+</nav>
+
+            <!-- Footer Bottom: Copyright -->
+            <div class="footer-bottom">
+                <span>&copy; {{ date('Y') }} EduBlog.</span>
+                <span>Développé avec Laravel 12 &amp; PHP.</span>
+                <span>Tous droits réservés.</span>
+            </div>
+
         </div>
     </footer>
+
+    <!-- Cookie Consent Banner -->
+<x-cookie-banner />
+
+<script>
+    (function() {
+        const banner = document.getElementById('cookie-consent');
+        if (!banner) return;
+        // Helper to read cookie value
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+        const existing = getCookie('cookie_consent');
+        if (existing) {
+            banner.style.display = 'none';
+            return;
+        }
+        // Attach click handlers
+        const acceptBtn = banner.querySelector('.cookie-btn--accept');
+        const rejectBtn = banner.querySelector('.cookie-btn--reject');
+        function setConsent(value) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (365*24*60*60*1000));
+            document.cookie = `cookie_consent=${value}; expires=${expires.toUTCString()}; path=/; SameSite=Lax`;
+            banner.style.display = 'none';
+        }
+        acceptBtn && acceptBtn.addEventListener('click', () => setConsent('accepted'));
+        rejectBtn && rejectBtn.addEventListener('click', () => setConsent('rejected'));
+    })();
+</script>
 
 </body>
 </html>
