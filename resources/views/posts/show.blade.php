@@ -33,6 +33,16 @@
                 </svg>
                 <span>Publié le {{ $post->created_at->format('d F Y') }}</span>
             </div>
+            <div class="post-detail-meta-item">
+                <div class="post-rating">
+                    @for ($i = 1; $i <= 5; $i++)
+                        <svg class="star-icon {{ $i <= ($post->rating ?? 0) ? '' : 'empty' }}" viewBox="0 0 24 24" fill="currentColor" style="width: 18px; height: 18px;">
+                            <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                        </svg>
+                    @endfor
+                    <span class="rating-text">({{ $post->rating ?? 0 }}/5)</span>
+                </div>
+            </div>
         </div>
     </article>
 
@@ -47,6 +57,25 @@
     <section class="post-detail-content">
         {!! nl2br(e($post->content)) !!}
     </section>
+
+    <!-- Rating Form for Readers -->
+    @if(auth()->check() && auth()->id() !== $post->user_id)
+        <section class="post-rating-form glass" style="margin-top: 2rem; padding: 1rem;">
+            <h3 class="form-subtitle">Évaluez cet article</h3>
+            <form action="{{ route('ratings.store', $post) }}" method="POST" class="d-flex align-items-center">
+                @csrf
+                <label for="rating" class="me-2">Votre note :</label>
+                <select name="rating" id="rating" class="form-select" style="width: auto; display: inline-block;">
+                    <option value="1">1 ★</option>
+                    <option value="2">2 ★★</option>
+                    <option value="3">3 ★★★</option>
+                    <option value="4">4 ★★★★</option>
+                    <option value="5">5 ★★★★★</option>
+                </select>
+                <button type="submit" class="btn btn-primary ms-3">Envoyer</button>
+            </form>
+        </section>
+    @endif
 
     <!-- Actions d'administration (Modifier et Supprimer) - Réservé à l'auteur de l'article -->
     @if(auth()->check() && auth()->id() === $post->user_id)

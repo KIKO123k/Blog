@@ -64,8 +64,8 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        // Load the user relation for the single post view
-        $post->load('user');
+        // Load the user, comments, and ratings relations for the single post view
+        $post->load(['user', 'comments', 'ratings']);
         return view('posts.show', compact('post'));
     }
 

@@ -3,19 +3,222 @@
 @section('title', 'Accueil')
 
 @section('content')
-    <!-- Hero Banner -->
-    <section class="landing-hero">
-        <h1 class="landing-hero-title">Partagez votre Savoir sur <span class="gradient-title">EduBlog</span></h1>
-        <p class="landing-hero-subtitle">Une plateforme d'échange et de publication moderne conçue pour les étudiants et passionnés du développement web.</p>
+    <style>
+        /* Suppression globale des espaces entre le header et le contenu */
+        body, main, .main-content {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
         
-        <div class="landing-hero-actions">
-            <a href="{{ route('posts.index') }}" class="btn btn-primary btn-lg">Découvrir les Articles</a>
-            @guest
-                <a href="{{ route('register') }}" class="btn btn-secondary btn-lg">Créer un Compte</a>
-            @endguest
-            @auth
-                <a href="{{ route('posts.create') }}" class="btn btn-secondary btn-lg">Rédiger un Article</a>
-            @endauth
+        header, nav {
+            margin-bottom: 0 !important;
+        }
+
+        .hero-redesign {
+            position: relative;
+            width: 100vw;
+            left: 50%;
+            right: 50%;
+            margin-left: -50vw;
+            margin-right: -50vw;
+            
+            /* Supprime les marges et occupe l'écran */
+            margin-top: 0;
+            padding-top: 0;
+            min-height: 90vh;
+            
+            display: flex;
+            align-items: center;
+            background-color: #fff;
+            overflow: hidden;
+        }
+
+        /* L'image devient le fond complet */
+        .hero-student-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 15% center; /* Optimisé pour voir le bras et le doigt */
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Overlay pour la lisibilité du texte à droite */
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            /* Dégradé optimisé pour la transition header -> image -> texte */
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 30%, rgba(255,255,255,0.85) 65%, #fff 100%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            justify-content: flex-end; /* Pousse le texte vers l'espace vide de l'image */
+            position: relative;
+            z-index: 10;
+        }
+
+        .hero-content {
+            max-width: 550px;
+            animation: fadeInRight 1s ease-out;
+            /* Ajustement pour remonter le texte et le rapprocher du doigt (vers la gauche) */
+            margin-top: -100px;
+            margin-right: 80px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+        }
+
+        .text-green {
+            color: #289550ff;
+            font-weight: 800;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: #1f2937;
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            color: #4b5563;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-green {
+            background-color: #22c55e;
+            color: white !important;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39);
+        }
+
+        .btn-green:hover {
+            background-color: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.23);
+        }
+
+        .btn-outline {
+            border: 2px solid #e5e7eb;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline:hover {
+            background-color: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        /* Floating Elements */
+        .floating-icon {
+            position: absolute;
+            opacity: 0.15;
+            z-index: 1;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(40px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 992px) {
+            .hero-redesign {
+                min-height: 70vh;
+                text-align: center;
+            }
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .hero-student-bg {
+                width: 100%;
+                object-position: center;
+                opacity: 0.3;
+            }
+            .hero-overlay {
+                background: white;
+                opacity: 0.8;
+            }
+            .hero-container {
+                justify-content: center;
+                padding: 0 20px;
+            }
+            .hero-actions {
+                justify-content: center;
+            }
+            .hero-content {
+                margin-top: 0;
+                margin-right: 0;
+            }
+        }
+    </style>
+
+    <!-- Hero Banner Redesign -->
+    <section class="hero-redesign">
+        <!-- Background Image & Overlay -->
+        <img src="{{ asset('images/hero-student.png') }}" alt="" class="hero-student-bg">
+        <div class="hero-overlay"></div>
+
+        <div class="hero-container">
+            <!-- Content Area inside the empty space of the image -->
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Partagez votre Savoir sur <span class="text-green">EduBlog</span>
+                </h1>
+                <p class="hero-description">
+                    Découvrez des ressources éducatives, les filières d'ingénierie, les expériences académiques et les connaissances partagées par les étudiants de l'ENSA.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="{{ route('posts.index') }}" class="btn-green">
+                        Découvrir les Ressources
+                    </a>
+                    @guest
+                        <a href="{{ route('register') }}" class="btn-outline">
+                            Créer un Compte
+                        </a>
+                    @endguest
+                    @auth
+                        <a href="{{ route('posts.create') }}" class="btn-outline">
+                            Rédiger un Article
+                        </a>
+                    @endauth
+                </div>
+            </div>
         </div>
     </section>
 
@@ -101,6 +304,136 @@
                     <p>Il n'y a pas encore d'article sur ce blog.</p>
                 </div>
             @endforelse
+        </div>
+    </section>
+    <!-- ENSA Majors Section -->
+    <section class="majors-section" style="margin-top: 60px;">
+        <div class="posts-header">
+            <div>
+                <h2 class="section-title">Explore ENSA Kenitra Engineering Majors</h2>
+            </div>
+        </div>
+        <div class="posts-grid">
+            <!-- Card 1 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_telecom.png') }}" alt="Réseaux et Systèmes de Télécommunications">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Réseaux et Systèmes de Télécommunications</h3>
+                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans les réseaux informatiques, les télécommunications, la cybersécurité et les infrastructures numériques modernes.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'reseaux-et-systemes-de-telecommunications') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
+            <!-- Card 2 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_informatique.png') }}" alt="Génie Informatique">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Génie Informatique</h3>
+                    <p class="post-card-excerpt">Cette filière forme des ingénieurs en informatique, spécialisés dans le développement logiciel, les algorithmes, les bases de données et les technologies émergentes.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'genie-informatique') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
+            <!-- Card 3 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_industriel.png') }}" alt="Génie Industriel">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Génie Industriel</h3>
+                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans l'optimisation de la production, la gestion de la chaîne d'approvisionnement, le contrôle qualité et l'automatisation industrielle.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'genie-industriel') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
+            <!-- Card 4 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_electrique.png') }}" alt="Génie Électrique">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Génie Électrique</h3>
+                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans les systèmes électriques, l'électronique, les énergies renouvelables et la conception de systèmes embarqués.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'genie-electrique') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
+            <!-- Card 5 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_mechatronique.png') }}" alt="Génie Mécatronique">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Génie Mécatronique</h3>
+                    <p class="post-card-excerpt">Cette filière combine mécanique, électronique et informatique pour créer des machines intelligentes et des solutions d'automatisation.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'genie-mecatronique') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
+            <!-- Card 6 -->
+            <article class="post-card glass">
+                <div class="post-card-image">
+                    <img src="{{ asset('images/major_energetique.png') }}" alt="Génie Énergétique et Énergies Renouvelables">
+                </div>
+                <div class="post-card-content">
+                    <div class="post-card-meta">
+                        <span class="post-card-author">
+                            <span class="author-avatar">A</span>
+                            Administration ENSA Kénitra
+                        </span>
+                        <span>{{ now()->format('d/m/Y') }}</span>
+                    </div>
+                    <h3 class="post-card-title">Génie Énergétique et Énergies Renouvelables</h3>
+                    <p class="post-card-excerpt">Cette filière forme des ingénieurs capables de concevoir des solutions d'énergie durable, d'améliorer l'efficacité énergétique et de gérer les ressources renouvelables.</p>
+                    <div class="post-card-footer">
+                        <a href="{{ route('majors.show', 'genie-energetique-et-energies-renouvelables') }}" class="read-more-link">Découvrir la filière →</a>
+                    </div>
+                </div>
+            </article>
         </div>
     </section>
 

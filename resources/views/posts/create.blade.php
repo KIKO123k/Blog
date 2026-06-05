@@ -46,6 +46,9 @@
                 @enderror
             </div>
 
+            <!-- Champ : Note -->
+
+
             <!-- Champ : Image (Drag & Drop Mockup Style) -->
             <div class="form-group">
                 <label class="form-label">Image d'illustration (optionnelle)</label>

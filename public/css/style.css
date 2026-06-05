@@ -6,18 +6,21 @@
     --bg-card: rgba(255, 255, 255, 0.4);
     --bg-card-hover: rgba(255, 255, 255, 0.85);
     --border-color: rgba(15, 23, 42, 0.08);
-    --border-hover: rgba(79, 70, 229, 0.4);
-    --border-glow: rgba(79, 70, 229, 0.08);
+    --border-hover: rgba(110, 231, 183, 0.4);
+    --border-glow: rgba(110, 231, 183, 0.08);
     --text-primary: #0f172a;
     --text-secondary: #334155;
     --text-muted: #64748b;
-    --primary: #4f46e5;
-    --primary-hover: #4338ca;
-    --primary-glow: rgba(79, 70, 229, 0.15);
-    --accent: #7c3aed;
-    --accent-glow: rgba(124, 58, 237, 0.1);
-    --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    --gradient-text: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --primary: #6EE7B7;
+    /* Mint green */
+    --primary-hover: #34D399;
+    /* Darker mint */
+    --primary-glow: rgba(110, 231, 183, 0.15);
+    --accent: #34D399;
+    /* Use same as hover for accent */
+    --accent-glow: rgba(52, 211, 153, 0.1);
+    --gradient-primary: linear-gradient(135deg, #6EE7B7 0%, #34D399 100%);
+    --gradient-text: linear-gradient(135deg, #6EE7B7 0%, #34D399 100%);
     --success: #059669;
     --success-bg: rgba(5, 150, 105, 0.08);
     --error: #e11d48;
@@ -50,7 +53,7 @@
 
 body {
     background-color: var(--bg-base);
-    background-image: 
+    background-image:
         radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
         radial-gradient(at 100% 100%, rgba(124, 58, 237, 0.06) 0px, transparent 50%),
         radial-gradient(at 50% 50%, rgba(255, 255, 255, 0.4) 0px, transparent 100%);
@@ -70,7 +73,12 @@ a {
 }
 
 /* Typography */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-heading);
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -88,13 +96,16 @@ h1, h2, h3, h4, h5, h6 {
 ::-webkit-scrollbar {
     width: 8px;
 }
+
 ::-webkit-scrollbar-track {
     background: var(--bg-base);
 }
+
 ::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.1);
     border-radius: var(--radius-sm);
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: var(--primary);
 }
@@ -132,24 +143,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .logo {
-    font-size: 24px;
-    font-weight: 800;
-    font-family: var(--font-heading);
     display: flex;
     align-items: center;
-    gap: 8px;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    transition: var(--transition);
 }
 
-.logo-icon {
-    width: 32px;
-    height: 32px;
-    background: var(--gradient-primary);
-    border-radius: 8px;
-    display: inline-block;
-    position: relative;
+.logo:hover {
+    transform: scale(1.03);
+    opacity: 0.85;
+}
+
+.nav-logo {
+    height: 100px;
+    /* Increased size for better brand visibility */
+    width: auto;
+    display: block;
+    mix-blend-mode: multiply;
+    /* Integrates the white background with the glass effect */
+    filter: contrast(1.1);
+    /* Sharpens the logo colors */
 }
 
 .nav-links {
@@ -166,7 +178,8 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: var(--radius-sm);
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover,
+.nav-link.active {
     color: var(--text-primary);
     background: var(--hover-bg);
 }
@@ -329,10 +342,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .post-card:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     border-color: var(--border-hover);
-    box-shadow: var(--shadow-lg), 0 0 20px var(--border-glow);
-    background: var(--bg-card-hover);
+    box-shadow: var(--shadow-md);
+    background: var(--bg-surface);
 }
 
 .post-card-image {
@@ -426,11 +439,37 @@ h1, h2, h3, h4, h5, h6 {
 
 .post-card-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
     border-top: 1px solid var(--border-color);
     padding-top: 16px;
     margin-top: auto;
+}
+
+.post-rating {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.rating-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
+
+.star-icon {
+    width: 16px;
+    height: 16px;
+    color: #f59e0b;
+    /* Amber/Gold color for stars */
+}
+
+.star-icon.empty {
+    color: var(--text-muted);
+    opacity: 0.3;
 }
 
 .read-more-link {
@@ -469,6 +508,57 @@ h1, h2, h3, h4, h5, h6 {
     transition: var(--transition);
     border: 1px solid transparent;
 }
+
+/* Pagination Styles - Redesigned to match Search Button */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin: 3rem 0;
+    padding: 0 1rem;
+}
+
+.pagination {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    gap: 0.75rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.pagination li a,
+.pagination li span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 20px;
+    min-width: 44px;
+    border-radius: 40px;
+    /* Style arrondi identique au bouton recherche */
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 14px;
+    transition: var(--transition);
+    background: var(--btn-secondary-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/* Remove obsolete .page-btn styles – pagination now uses .btn-primary */
+/* .page-btn { */
+/*     transition: background-color 0.2s ease-in-out; */
+/* }
+/* .page-btn:hover { */
+/*     background-color: rgba(30,144,255,0.2); */
+/* } */
 
 .btn-primary {
     background: var(--gradient-primary);
@@ -567,6 +657,7 @@ h1, h2, h3, h4, h5, h6 {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -574,48 +665,76 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Pagination Custom Stylings */
-.pagination-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
+.my-posts-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-.pagination {
-    display: flex;
-    list-style: none;
-    gap: 8px;
+.my-posts-table th,
+.my-posts-table td {
+    padding: 1.5rem 1.75rem;
+    /* increase padding */
+    vertical-align: middle;
+    line-height: 1.5;
+    text-align: left;
+}
+
+.my-posts-table th {
     background: var(--bg-surface);
-    padding: 8px;
-    border-radius: 40px;
-    border: 1px solid var(--border-color);
+    font-weight: 600;
+    color: var(--text-primary);
 }
 
-.pagination li a, .pagination li span {
+.my-posts-table tr {
+    height: 4rem;
+    /* row height */
+}
+
+.my-posts-table th:first-child,
+.my-posts-table td:first-child {
+    width: 38%;
+    max-width: 38%;
+}
+
+.my-posts-table th:not(:first-child),
+.my-posts-table td:not(:first-child) {
+    text-align: center;
+}
+
+.my-posts-table td {
+    color: var(--text-secondary);
+}
+
+/* Action buttons row – always horizontal */
+.actions-row {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    transition: var(--transition);
+    gap: 8px;
+    white-space: nowrap;
 }
 
 .pagination li a:hover {
-    background: var(--hover-bg);
-    color: var(--text-primary);
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 0 15px var(--primary-glow);
+    transform: translateY(-2px);
 }
 
 .pagination li.active span {
     background: var(--gradient-primary);
     color: white;
+    border-color: transparent;
+    box-shadow: 0 0 15px var(--primary-glow);
 }
 
 .pagination li.disabled span {
-    color: var(--text-muted);
+    opacity: 0.5;
     cursor: not-allowed;
+    background: var(--btn-secondary-bg);
 }
 
 /* Form Styles */
@@ -900,29 +1019,29 @@ textarea.form-control {
         flex-direction: column;
         gap: 16px;
     }
-    
+
     .nav-links {
         width: 100%;
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     .search-form {
         max-width: 100%;
     }
-    
+
     .hero h1 {
         font-size: 36px;
     }
-    
+
     .post-detail-title {
         font-size: 32px;
     }
-    
+
     .posts-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .form-container {
         padding: 24px 16px;
     }
@@ -1319,17 +1438,19 @@ textarea.form-control {
     color: #fff;
     padding: 20px;
     text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     z-index: 1000;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
 }
+
 .cookie-consent p {
     margin: 0;
     font-size: 15px;
 }
+
 .cookie-btn {
     min-width: 100px;
     padding: 8px 20px;
@@ -1339,21 +1460,25 @@ textarea.form-control {
     font-weight: 600;
     transition: var(--transition);
 }
+
 .cookie-btn--accept {
     background: var(--success);
     color: #fff;
 }
 
 .cookie-btn--accept:hover {
-    background: #047857; /* darker green */
+    background: #047857;
+    /* darker green */
 }
+
 .cookie-btn--reject {
     background: var(--error);
     color: #fff;
 }
 
 .cookie-btn--reject:hover {
-    background: #c53030; /* darker red */
+    background: #c53030;
+    /* darker red */
 }
 
 .footer-notice a:hover {
@@ -1404,4 +1529,3 @@ textarea.form-control {
     align-items: center;
     gap: 4px;
 }
-

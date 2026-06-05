@@ -75,6 +75,15 @@
                         </p>
                         
                         <div class="post-card-footer">
+                            <div class="post-rating">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    <svg class="star-icon {{ $i <= ($post->rating ?? 0) ? '' : 'empty' }}" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                                    </svg>
+                                @endfor
+                                <span class="rating-text">({{ $post->rating ?? 0 }}/5)</span>
+                            </div>
+
                             <a href="{{ route('posts.show', $post->id) }}" class="read-more-link">
                                 Lire l'article
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -94,9 +103,9 @@
                 <ul class="pagination">
                     {{-- Previous Page Link --}}
                     @if ($posts->onFirstPage())
-                        <li class="disabled"><span>&laquo;</span></li>
+                        <li class="disabled"><span>Précédent</span></li>
                     @else
-                        <li><a href="{{ $posts->previousPageUrl() }}" rel="prev">&laquo;</a></li>
+                        <li><a href="{{ $posts->previousPageUrl() }}" rel="prev">Précédent</a></li>
                     @endif
 
                     {{-- Pagination Elements --}}
@@ -110,9 +119,9 @@
 
                     {{-- Next Page Link --}}
                     @if ($posts->hasMorePages())
-                        <li><a href="{{ $posts->nextPageUrl() }}" rel="next">&raquo;</a></li>
+                        <li><a href="{{ $posts->nextPageUrl() }}" rel="next">Suivant</a></li>
                     @else
-                        <li class="disabled"><span>&raquo;</span></li>
+                        <li class="disabled"><span>Suivant</span></li>
                     @endif
                 </ul>
             </div>

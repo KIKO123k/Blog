@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>@yield('title', 'Laravel Blog') - Projet Universitaire</title>
+    <title>@yield('title', 'EduPlatform') - Projet Universitaire</title>
     
+    <link rel="icon" href="{{ asset('images/logo1.png') }}" type="image/png">
     <!-- Link to custom premium CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
@@ -15,13 +16,13 @@
     <header class="main-header glass">
         <div class="container navbar">
             <a href="{{ url('/') }}" class="logo">
-                <span class="logo-icon"></span>
-                <span>EduBlog</span>
+                <img src="{{ asset('images/logo.png') }}" alt="EduBlog Logo" class="nav-logo">
             </a>
             
             <nav class="nav-links">
                 <a href="{{ url('/') }}" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Accueil</a>
-                <a href="{{ route('posts.index') }}" class="nav-link {{ Request::is('posts') || (Request::is('posts/*') && !Request::is('posts/create')) ? 'active' : '' }}">Articles</a>
+                <a href="{{ route('posts.index') }}" class="nav-link {{ Request::is('posts') || (Request::is('posts/*') && !Request::is('posts/create')) ? 'active' : '' }}">Ressources</a>
+                <a href="{{ url('/clubs') }}" class="nav-link {{ Request::is('clubs') ? 'active' : '' }}">Clubs</a>
                 @auth
                     <!-- Dropdown Board for User -->
                     <div class="user-dropdown">
@@ -38,7 +39,14 @@
                                     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                     <circle cx="12" cy="7" r="4"></circle>
                                 </svg>
-                                Mon Profil
+                                Paramètres
+                            </a>
+                            <a href="{{ route('my-articles') }}" class="dropdown-item">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                    <path d="M12 20l9-5-9-5-9 5 9 5z"/>
+                                    <polyline points="12 12 21 7 12 2 3 7 12 12"/>
+                                </svg>
+                                Mes publications
                             </a>
                             <div class="dropdown-divider"></div>
                             <form action="{{ route('logout') }}" method="POST" style="display: block; width: 100%;">
@@ -140,7 +148,7 @@
 
             <!-- Footer Bottom: Copyright -->
             <div class="footer-bottom">
-                <span>&copy; {{ date('Y') }} EduBlog.</span>
+                <span>&copy; {{ date('Y') }} EduPlatform.</span>
                 <span>Développé avec Laravel 12 &amp; PHP.</span>
                 <span>Tous droits réservés.</span>
             </div>

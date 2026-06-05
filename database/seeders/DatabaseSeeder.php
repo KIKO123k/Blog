@@ -19,17 +19,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Ensure user with ID 1 exists
-        $user = User::find(1);
-        if (!$user) {
-            $user = User::create([
-                'id' => 1,
-                'name' => 'Test User',
-                'email' => 'test@example.com',
+        // Ensure the main admin user exists for ENSA majors
+        $admin = User::firstOrCreate(
+            ['email' => 'admin.ensa@uit.ac.ma'],
+            [
+                'name' => 'Administration ENSA Kénitra',
+                'password' => Hash::make('adminpassword'),
+                'email_verified_at' => now(),
+            ]
+        );
+
+        // Ensure the regular user exists as before
+        $user = User::firstOrCreate(
+            ['email' => 'khadijanafia133@gmail.com'],
+            [
+                'name' => 'Khadija Nafia',
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
-            ]);
-        }
+            ]
+        );
+
 
         // 1b. Seed 20 other random users
         User::factory(20)->create();
@@ -75,7 +84,7 @@ class DatabaseSeeder extends Seeder
             "Tailwind CSS" => "Tailwind CSS a révolutionné la façon dont nous concevons les interfaces web. Avec son approche utility-first, il permet de créer des designs modernes et responsives extrêmement rapidement et sans quitter vos fichiers HTML.",
             "l'accessibilité web" => "L'accessibilité web (a11y) garantit que les sites internet sont utilisables par tout le monde, y compris les personnes en situation de handicap. Cet article vous montre comment intégrer les standards du W3C dès le début.",
             "la sécurité des API" => "Sécuriser une API REST est une priorité absolue pour protéger les données de vos utilisateurs. Nous passons en revue les meilleures pratiques, de l'authentification OAuth2 aux en-têtes CORS en passant par le rate limiting.",
-            "Docker et les conteneurs" => "Docker permet de standardiser l'environnement de développement et de production de vos applications. Apprenez à créer vos propres conteneurs et à orchestrer vos services comme un professionnel.",
+            "Docker et les conteneurs" => "Docker permet de standardiser l'environnement de développement et de production de vos applications. Apprent à créer vos propres conteneurs et à orchestrer vos services comme un professionnel.",
             "la méthode Pomodoro" => "La méthode Pomodoro est une technique de gestion du temps simple et redoutable pour lutter contre la procrastination. Découvrez comment l'appliquer au quotidien pour doubler votre concentration.",
             "la productivité en télétravail" => "Travailler depuis chez soi présente de nombreux défis en matière d'organisation. Nous avons rassemblé les meilleures astuces pour maintenir un équilibre sain entre vie professionnelle et personnelle.",
             "les bases de données" => "Les bases de données sont le cœur de toute application web moderne. Apprenez à concevoir des schémas optimisés, à écrire des requêtes performantes et à utiliser l'indexation de manière intelligente.",
@@ -158,19 +167,84 @@ class DatabaseSeeder extends Seeder
             $createdAt = $startDate->copy()->addSeconds(round($index * $intervalSeconds));
             
             $posts[] = [
-                'user_id' => rand(1, 21),
+                'user_id' => $user->id,
                 'title' => $title,
                 'content' => $bodyContent,
                 'image' => $getImageForTitle($title),
+                'views' => rand(0, 1000),
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt,
             ];
         }
 
         // 6. Bulk insert articles
+        // Insert regular posts in chunks
         foreach (array_chunk($posts, 25) as $chunk) {
             Post::insert($chunk);
         }
+
+        // --- Seed detailed majors as full articles (idempotent) ---
+        $majors = [
+            [
+                'title' => 'Réseaux et Systèmes de Télécommunications',
+                'content' => "<h2>Présentation</h2><p>Cette filière forme des ingénieurs spécialisés dans les réseaux informatiques, les télécommunications, la cybersécurité et les infrastructures numériques modernes.</p>"
+                    . "<h3>Compétences développées</h3><ul><li>Conception d'architectures réseaux</li><li>Gestion de la sécurité des communications</li><li>Déploiement d'infrastructures 5G</li></ul>"
+                    . "<h3>Matières principales</h3><ul><li>Protocoles TCP/IP</li><li>Systèmes sans fil</li><li>Cybersécurité avancée</li></ul>"
+                    . "<h3>Technologies utilisées</h3><ul><li>Wi‑Fi 6, 5G, LTE</li><li>Outils de simulation réseau (NS‑3, GNS3)</li><li>Protocoles de sécurité (IPSec, TLS)</li></ul>"
+                    . "<h3>Débouchés professionnels</h3><p>Ingénieur réseau, architecte télécom, consultant en cybersécurité, chef de projet infrastructure.</p>"
+                    . "<h3>Marché de l'emploi</h3><p>La demande d'experts en télécom et cybersécurité est en forte croissance, notamment avec l'expansion des réseaux 5G et l'essor du cloud.</p>"
+                    . "<h3>Conseils aux étudiants</h3><p>Pratiquer les labs de configuration, obtenir des certifications (Cisco CCNA, CompTIA Security+), et participer à des projets open‑source.</p>",
+                'image' => 'https://images.unsplash.com/photo-1517242021261-c4c49e2f5d57?w=800&auto=format&fit=crop',
+            ],
+            [
+                'title' => 'Génie Informatique',
+                'content' => "<h2>Présentation</h2><p>Formation d'ingénieurs experts en développement logiciel, architectures systèmes et technologies émergentes.</p>"
+                    . "<h3>Compétences développées</h3><ul><li>Programmation avancée (C++, Java, Python)</li><li>Architecture logicielle</li><li>DevOps et CI/CD</li></ul>"
+                    . "<h3>Matières principales</h3><ul><li>Algorithmique</li><li>Base de données</li><li>Intelligence artificielle</li></ul>"
+                    . "<h3>Technologies utilisées</h3><ul><li>Frameworks web (Laravel, React)</li><li>Conteneurs Docker</li><li>Cloud (AWS, Azure)</li></ul>"
+                    . "<h3>Débouchés professionnels</h3><p>Développeur senior, architecte logiciel, chef de projet IT, consultant en transformation digitale.</p>"
+                    . "<h3>Marché de l'emploi</h3><p>Le secteur du logiciel continue de croître rapidement, avec une forte demande pour les spécialistes du cloud et de la cybersécurité.</p>"
+                    . "<h3>Conseils aux étudiants</h3><p>Contribuer à des projets open‑source, obtenir des certifications cloud, et réaliser des stages en entreprise.</p>",
+                'image' => 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop',
+            ],
+            [
+                'title' => 'Génie Industriel',
+                'content' => "<h2>Présentation</h2><p>Cette filière prépare les ingénieurs à optimiser les processus de production, la logistique et la qualité industrielle.</p><h3>Compétences développées</h3><ul><li>Analyse des flux de production</li><li>Gestion de la chaîne d'approvisionnement</li><li>Automatisation et robotique</li></ul><h3>Matières principales</h3><ul><li>Gestion de projet industriel</li><li>Qualité et amélioration continue</li><li>Simulation de processus</li></ul><h3>Débouchés professionnels</h3><p>Ingénieur production, consultant Lean, responsable supply chain, chef de projet automatisation.</p>",
+                'image' => 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&auto=format&fit=crop',
+            ],
+            [
+                'title' => 'Génie Électrique',
+                'content' => "<h2>Présentation</h2><p>Formation centrée sur les systèmes électriques, l'électronique de puissance et les énergies renouvelables.</p><h3>Compétences développées</h3><ul><li>Conception de circuits</li><li>Gestion d'énergie</li><li>Électronique embarquée</li></ul><h3>Matières principales</h3><ul><li>Électrotechnique</li><li>Automates programmables</li><li>Énergies vertes</li></ul><h3>Débouchés professionnels</h3><p>Ingénieur électricien, concepteur de systèmes embarqués, consultant en énergie durable.</p>",
+                'image' => 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop',
+            ],
+            [
+                'title' => 'Génie Mécatronique',
+                'content' => "<h2>Présentation</h2><p>Ce cursus associe mécanique, électronique et informatique pour créer des systèmes automatisés intelligents.</p><h3>Compétences développées</h3><ul><li>Conception robotique</li><li>Contrôle de systèmes</li><li>Programmation temps réel</li></ul><h3>Matières principales</h3><ul><li>Robotique</li><li>Automatique</li><li>Instrumentation</li></ul><h3>Débouchés professionnels</h3><p>Ingénieur robotique, concepteur de systèmes automatisés, développeur d'IoT industriel.</p>",
+                'image' => 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=800&auto=format&fit=crop',
+            ],
+            [
+                'title' => 'Génie Énergétique et Énergies Renouvelables',
+                'content' => "<h2>Présentation</h2><p>Programme dédié à la conception de solutions énergétiques durables, l'optimisation de l'efficacité énergétique et la gestion des ressources renouvelables.</p><h3>Compétences développées</h3><ul><li>Analyse énergétique</li><li>Conception de systèmes solaires et éoliens</li><li>Gestion de projets d’efficacité énergétique</li></ul><h3>Matières principales</h3><ul><li>Thermodynamique</li><li>Énergies renouvelables</li><li>Gestion de la demande énergétique</li></ul><h3>Débouchés professionnels</h3><p>Consultant en énergie, ingénieur projet renouvelable, auditeur énergétique, responsable RSE.</p>",
+                'image' => 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&auto=format&fit=crop',
+            ],
+        ];
+
+                foreach ($majors as $major) {
+            // Check if an article with this title already exists
+            $exists = \App\Models\Post::where('title', $major['title'])->exists();
+            if (! $exists) {
+                \App\Models\Post::create([
+                    'user_id' => $admin->id,
+                    'title' => $major['title'],
+                    'content' => $major['content'],
+                    'image' => $major['image'],
+                    'views' => rand(0, 1000),
+                    'created_at' => now()->subDays(rand(0, 365)),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
 
         // 7. Seed comments for each post
         $allPosts = Post::all();

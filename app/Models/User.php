@@ -48,6 +48,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Ratings given by the user.
+     */
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
+
+    /**
      * Get the posts written by the user.
      */
     public function posts()
