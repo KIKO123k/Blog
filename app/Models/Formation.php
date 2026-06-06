@@ -31,19 +31,4 @@ class Formation extends Model
             default             => ucfirst($this->category),
         };
     }
-
-    public function comments()
-    {
-        return $this->hasMany(MajorComment::class, 'major_id');
-    }
-
-    public function ratings()
-    {
-        return $this->hasMany(MajorRating::class, 'major_id');
-    }
-
-    public function avgRating()
-    {
-        return $this->ratings()->avg('rating') ?: 0;
-    }
 }

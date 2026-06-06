@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,19 +8,24 @@ class Major extends Model
 {
     use HasFactory;
 
+    // Use the existing formations table
+    protected $table = 'formations';
+
     protected $fillable = [
-        'title',
-        'slug',
-        'description',
-        'modules',
-        'access_conditions',
-        'duration',
-        'video_path',
-        'image_path'
+        'slug', 'title', 'category', 'shortDesc', 'description',
+        'duration', 'admission_criteria', 'careers', 'modules',
+        'objectifs', 'competences', 'debouches', 'acces',
+        'partenariats', 'source_url', 'video_path',
     ];
 
     protected $casts = [
-        'modules' => 'array',
+        'careers'      => 'array',
+        'modules'      => 'array',
+        'objectifs'    => 'array',
+        'competences'  => 'array',
+        'debouches'    => 'array',
+        'acces'        => 'array',
+        'partenariats'=> 'array',
     ];
 
     public function comments()
@@ -39,3 +43,4 @@ class Major extends Model
         return $this->ratings()->avg('rating') ?: 0;
     }
 }
+?>

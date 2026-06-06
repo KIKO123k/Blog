@@ -21,7 +21,7 @@
             
             <nav class="nav-links">
                 <a href="{{ url('/') }}" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Accueil</a>
-                <a href="{{ route('majors.index') }}" class="nav-link {{ Request::is('majors') || Request::is('majors/*') ? 'active' : '' }}">Filières</a>
+                <a href="{{ route('formations.show', 'genie-informatique') }}" class="nav-link {{ Request::is('formations/genie-informatique') ? 'active' : '' }}">Filière</a>
                 <a href="{{ route('clubs.index') }}" class="nav-link {{ Request::is('clubs') || Request::is('clubs/*') ? 'active' : '' }}">Clubs</a>
                 <a href="{{ route('posts.index') }}" class="nav-link {{ Request::is('posts') || (Request::is('posts/*') && !Request::is('posts/create')) ? 'active' : '' }}">Ressources</a>
                 @auth

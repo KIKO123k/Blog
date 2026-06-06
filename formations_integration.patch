@@ -1,0 +1,1772 @@
+From d879919f0d2bc7f0afaa296a81093cc2b3d869c7 Mon Sep 17 00:00:00 2001
+From: Mavis <Mavis@MiniMax.local>
+Date: Sat, 6 Jun 2026 13:21:36 +0000
+Subject: [PATCH] =?UTF-8?q?feat:=20integrate=20real=20ENSA=20K=C3=A9nitra?=
+ =?UTF-8?q?=20Formations=20module?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Replace the hard-coded MajorController data with a full Formations
+module backed by the database (Formation model + migration + seeder)
+populated with 8 real ENSA Kénitra programs scraped from
+ensa.uit.ac.ma, including the full program, skills, career paths,
+and admission conditions for 'Réseaux et Systèmes de Télécommunications'.
+
+- Add /formations index and /formations/{slug} detail pages
+- New Formation model, migration, and seeder
+- MajorController is now a thin compatibility layer that maps old
+  slugs (used by the home page) to the new formation slugs via 301
+- Navbar gains a 'Formations' link
+- Home page major cards point directly at the new formation URLs
+- Title default updated to 'EduBlog - ENSA Kénitra'
+- Views rebuilt to match the existing mint-green glassmorphism
+  design system (no Bootstrap dependency)
+---
+ app/Http/Controllers/FormationController.php  |  35 +
+ app/Http/Controllers/MajorController.php      |  67 +-
+ app/Models/Formation.php                      |  34 +
+ ...4_01_01_000001_create_formations_table.php |  34 +
+ database/seeders/FormationSeeder.php          | 683 ++++++++++++++++++
+ resources/views/formations/index.blade.php    | 250 +++++++
+ resources/views/formations/show.blade.php     | 497 +++++++++++++
+ resources/views/home.blade.php                |   4 +-
+ resources/views/layouts/app.blade.php         |   3 +-
+ routes/web.php                                |   9 +
+ 10 files changed, 1574 insertions(+), 42 deletions(-)
+ create mode 100644 app/Http/Controllers/FormationController.php
+ create mode 100644 app/Models/Formation.php
+ create mode 100644 database/migrations/2024_01_01_000001_create_formations_table.php
+ create mode 100644 database/seeders/FormationSeeder.php
+ create mode 100644 resources/views/formations/index.blade.php
+ create mode 100644 resources/views/formations/show.blade.php
+
+diff --git a/app/Http/Controllers/FormationController.php b/app/Http/Controllers/FormationController.php
+new file mode 100644
+index 0000000..1227a01
+--- /dev/null
++++ b/app/Http/Controllers/FormationController.php
+@@ -0,0 +1,35 @@
++<?php
++
++namespace App\Http\Controllers;
++
++use App\Models\Formation;
++use Illuminate\Http\Request;
++
++class FormationController extends Controller
++{
++    public function index(Request $request)
++    {
++        $category = $request->query('category');
++
++        $formations = Formation::when($category, fn($q) => $q->where('category', $category))
++            ->orderByRaw("FIELD(category, 'preparatoire', 'cycle_ingenieur', 'formation_continue', 'doctorat')")
++            ->orderBy('title')
++            ->get()
++            ->groupBy('category');
++
++        $categories = [
++            'preparatoire'       => 'Années Préparatoires',
++            'cycle_ingenieur'    => 'Cycle Ingénieur',
++            'formation_continue' => 'Formation Continue',
++            'doctorat'           => 'Cycle Doctoral',
++        ];
++
++        return view('formations.index', compact('formations', 'categories', 'category'));
++    }
++
++    public function show(string $slug)
++    {
++        $formation = Formation::where('slug', $slug)->firstOrFail();
++        return view('formations.show', compact('formation'));
++    }
++}
+diff --git a/app/Http/Controllers/MajorController.php b/app/Http/Controllers/MajorController.php
+index e60792c..3787dc6 100644
+--- a/app/Http/Controllers/MajorController.php
++++ b/app/Http/Controllers/MajorController.php
+@@ -1,54 +1,43 @@
+ <?php
+ namespace App\Http\Controllers;
+ 
+-use Illuminate\Http\Request;
++use App\Models\Formation;
+ 
++/**
++ * Legacy compatibility layer.
++ *
++ * The site used to expose `/majors/{slug}` with hard-coded data in this
++ * controller. Real formation data now lives in the `formations` table
++ * (see FormationController). This controller maps the old slugs to the
++ * new ones and redirects visitors to the canonical page.
++ */
+ class MajorController extends Controller
+ {
+-    // Simple static data; in a real app this could be a model.
+-    private $majors = [
+-        'reseaux-et-systemes-de-telecommunications' => [
+-            'title' => 'Réseaux et Systèmes de Télécommunications',
+-            'image' => 'images/major_telecom.png',
+-            'description' => 'Cette filière forme des ingénieurs spécialisés dans les réseaux informatiques, les télécommunications, la cybersécurité et les infrastructures numériques modernes.',
+-        ],
+-        'genie-informatique' => [
+-            'title' => 'Génie Informatique',
+-            'image' => 'images/major_informatique.png',
+-            'description' => 'Cette filière forme des ingénieurs en informatique, spécialisés dans le développement logiciel, les algorithmes, les bases de données et les technologies émergentes.',
+-        ],
+-        'genie-industriel' => [
+-            'title' => 'Génie Industriel',
+-            'image' => 'images/major_industriel.png',
+-            'description' => 'Cette filière forme des ingénieurs spécialisés dans l\'optimisation de la production, la gestion de la chaîne d\'approvisionnement, le contrôle qualité et l\'automatisation industrielle.',
+-        ],
+-        'genie-electrique' => [
+-            'title' => 'Génie Électrique',
+-            'image' => 'images/major_electrique.png',
+-            'description' => 'Cette filière forme des ingénieurs spécialisés dans les systèmes électriques, l\'électronique, les énergies renouvelables et la conception de systèmes embarqués.',
+-        ],
+-        'genie-mecatronique' => [
+-            'title' => 'Génie Mécatronique',
+-            'image' => 'images/major_mechatronique.png',
+-            'description' => 'Cette filière combine mécanique, électronique et informatique pour créer des machines intelligentes et des solutions d\'automatisation.',
+-        ],
+-        'genie-energetique-et-energies-renouvelables' => [
+-            'title' => 'Génie Énergétique et Énergies Renouvelables',
+-            'image' => 'images/major_energetique.png',
+-            'description' => 'Cette filière forme des ingénieurs capables de concevoir des solutions d\'énergie durable, d\'améliorer l\'efficacité énergétique et de gérer les ressources renouvelables.',
+-        ],
++    /**
++     * Old slug (from home page cards)  =>  New formation slug (formations table).
++     */
++    private const SLUG_MAP = [
++        'reseaux-et-systemes-de-telecommunications' => 'genie-reseaux-telecommunications',
++        'genie-informatique'                        => 'genie-informatique',
++        'genie-industriel'                          => 'genie-industriel',
++        'genie-electrique'                          => 'genie-electrique',
++        'genie-mecatronique'                        => 'genie-mecatronique',
++        'genie-energetique-et-energies-renouvelables' => 'efficacite-energetique-batiment-intelligent',
+     ];
+ 
+     /**
+-     * Show detail page for a major.
++     * Redirect to the matching formation page, or 404 if the slug
++     * doesn't map to any known formation.
+      */
+     public function show(string $slug)
+     {
+-        $data = $this->majors[$slug] ?? null;
+-        if (! $data) {
+-            abort(404);
++        $newSlug = self::SLUG_MAP[$slug] ?? $slug;
++
++        // Only redirect if the formation actually exists; otherwise 404
++        if (Formation::where('slug', $newSlug)->exists()) {
++            return redirect()->route('formations.show', ['slug' => $newSlug], 301);
+         }
+-        return view('majors.show', compact('data'));
++
++        abort(404, 'Formation introuvable.');
+     }
+ }
+-?>
+diff --git a/app/Models/Formation.php b/app/Models/Formation.php
+new file mode 100644
+index 0000000..b09af04
+--- /dev/null
++++ b/app/Models/Formation.php
+@@ -0,0 +1,34 @@
++<?php
++
++namespace App\Models;
++
++use Illuminate\Database\Eloquent\Model;
++
++class Formation extends Model
++{
++    protected $fillable = [
++        'slug', 'title', 'category', 'type', 'description',
++        'objectifs', 'competences', 'debouches', 'programme',
++        'acces', 'partenariats', 'source_url', 'duree_annees',
++    ];
++
++    protected $casts = [
++        'objectifs'    => 'array',
++        'competences'  => 'array',
++        'debouches'    => 'array',
++        'programme'    => 'array',
++        'acces'        => 'array',
++        'partenariats' => 'array',
++    ];
++
++    public function getCategoryLabelAttribute(): string
++    {
++        return match ($this->category) {
++            'preparatoire'      => 'Années Préparatoires',
++            'cycle_ingenieur'   => 'Cycle Ingénieur',
++            'formation_continue'=> 'Formation Continue',
++            'doctorat'          => 'Cycle Doctoral',
++            default             => ucfirst($this->category),
++        };
++    }
++}
+diff --git a/database/migrations/2024_01_01_000001_create_formations_table.php b/database/migrations/2024_01_01_000001_create_formations_table.php
+new file mode 100644
+index 0000000..a5f0b18
+--- /dev/null
++++ b/database/migrations/2024_01_01_000001_create_formations_table.php
+@@ -0,0 +1,34 @@
++<?php
++
++use Illuminate\Database\Migrations\Migration;
++use Illuminate\Database\Schema\Blueprint;
++use Illuminate\Support\Facades\Schema;
++
++return new class extends Migration
++{
++    public function up(): void
++    {
++        Schema::create('formations', function (Blueprint $table) {
++            $table->id();
++            $table->string('slug')->unique();
++            $table->string('title');
++            $table->string('category'); // 'cycle_ingenieur', 'preparatoire', 'formation_continue', 'doctorat'
++            $table->string('type')->nullable(); // e.g. 'ingenieur', 'licence', 'master'
++            $table->text('description');
++            $table->json('objectifs')->nullable();
++            $table->json('competences')->nullable();
++            $table->json('debouches')->nullable();
++            $table->json('programme')->nullable(); // semesters => modules
++            $table->json('acces')->nullable();      // admission conditions
++            $table->json('partenariats')->nullable(); // double diplôme schools
++            $table->string('source_url');
++            $table->integer('duree_annees')->default(3);
++            $table->timestamps();
++        });
++    }
++
++    public function down(): void
++    {
++        Schema::dropIfExists('formations');
++    }
++};
+diff --git a/database/seeders/FormationSeeder.php b/database/seeders/FormationSeeder.php
+new file mode 100644
+index 0000000..aa84bd2
+--- /dev/null
++++ b/database/seeders/FormationSeeder.php
+@@ -0,0 +1,683 @@
++<?php
++
++namespace Database\Seeders;
++
++use App\Models\Formation;
++use Illuminate\Database\Seeder;
++
++class FormationSeeder extends Seeder
++{
++    public function run(): void
++    {
++        Formation::truncate();
++
++        $formations = [
++
++            // ─── ANNÉES PRÉPARATOIRES ────────────────────────────────────────────────
++            [
++                'slug'         => 'annees-preparatoires',
++                'title'        => 'Années Préparatoires (CP1 & CP2)',
++                'category'     => 'preparatoire',
++                'type'         => 'preparatoire',
++                'duree_annees' => 2,
++                'source_url'   => 'https://ensa.uit.ac.ma/preparatory-years/',
++                'description'  => 'Les classes préparatoires intégrées des ENSA permettent aux étudiants d\'intégrer une formation d\'ingénieur dès leur première année universitaire. Elles s\'étendent sur deux années et couvrent les matières fondamentales nécessaires pour aborder le cycle ingénieur. L\'admission en cycle ingénieur ne nécessite pas de concours national : les étudiants passent automatiquement au cycle ingénieur s\'ils valident les deux années préparatoires.',
++                'objectifs'    => [
++                    'Acquérir les bases mathématiques, physiques et informatiques pour le cycle ingénieur',
++                    'Développer une formation scientifique et technique solide',
++                    'Développer les compétences en communication, travail en équipe et gestion de projet',
++                    'Bénéficier d\'un encadrement académique de qualité dans un environnement stimulant',
++                ],
++                'competences'  => [
++                    'CP1' => [
++                        'Mathématiques : Analyse, algèbre, probabilités',
++                        'Physique : Mécanique, thermodynamique, électricité',
++                        'Informatique : Introduction aux langages de programmation, algorithmes',
++                        'Chimie : Bases de la chimie organique et inorganique',
++                        'Langues : Renforcement en français et anglais',
++                    ],
++                    'CP2' => [
++                        'Mathématiques avancées : Calcul différentiel, statistiques, algèbre linéaire',
++                        'Physique appliquée : Électromagnétisme, optique, physique des matériaux',
++                        'Sciences de l\'ingénieur : Mécanique des fluides, résistance des matériaux',
++                        'Informatique avancée : Programmation orientée objet, structures de données',
++                        'Projets et travaux pratiques',
++                    ],
++                ],
++                'programme'    => [
++                    'S1' => [
++                        'M111 – Analyse 1',
++                        'M112 – Algèbre 1',
++                        'M113 – Mécanique du point matériel',
++                        'M114 – Chimie générale',
++                        'M115 – Dessin technique',
++                        'M116 – Méthodologie de travail universitaire',
++                        'M117 – Langues étrangères (Anglais/Français)',
++                    ],
++                    'S2' => [
++                        'M121 – Analyse 2',
++                        'M122 – Thermodynamique et Statique des Fluides',
++                        'M123 – Culture digitale',
++                        'M124 – Langues étrangères (Anglais/Français)',
++                        'M125 – Electrostatique et Magnétostatique',
++                        'M126 – Algorithmique',
++                        'M127 – Algèbre 2',
++                    ],
++                    'S3' => [
++                        'M231 – Mécanique du solide',
++                        'M232 – Algèbre 3',
++                        'M233 – Culture and art skills',
++                        'M234 – Electrocinétique',
++                        'M235 – Langage C',
++                        'M236 – Langues étrangères (Anglais/Français)',
++                        'M237 – Analyse 3',
++                    ],
++                    'S4' => [
++                        'M241 – Électromagnétisme et Physique des ondes',
++                        'M242 – Langues étrangères (Anglais/Français)',
++                        'M243 – Electronique analogique et numérique',
++                        'M244 – Développement personnel',
++                        'M245 – Analyse Numérique et Probabilités',
++                        'M246 – Optique Géométrique et Optique Physique',
++                        'M247 – Analyse 4',
++                    ],
++                ],
++                'acces'        => [
++                    'Baccalauréat scientifique (série Sciences & Technologies, Sciences de la matière, Sciences Mathématiques)',
++                    'Sélection sur dossier scolaire',
++                ],
++                'debouches'    => ['Accès direct au Cycle Ingénieur ENSA sans concours national'],
++                'partenariats' => [],
++            ],
++
++            // ─── GÉNIE INFORMATIQUE ──────────────────────────────────────────────────
++            [
++                'slug'         => 'genie-informatique',
++                'title'        => 'Génie Informatique',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/computer-engineering/',
++                'description'  => 'La formation en Génie Logiciel, Big Data et Data Science vise à former des ingénieurs polyvalents maîtrisant la conception et le déploiement de systèmes logiciels complexes et solutions Big Data. Elle propose deux options de spécialisation : Big Data & Data Science et Génie Logiciel.',
++                'objectifs'    => [
++                    'Acquérir une solide formation en programmation, bases de données et réseaux',
++                    'Maîtriser les technologies modernes (Frameworks web, Git, CI/CD, Hadoop, Spark)',
++                    'Développer une expertise en méthodologies Agile et principes de conception logicielle',
++                    'Acquérir des compétences solides en analyse de données et Machine Learning',
++                    'Comprendre les architectures Big Data et les systèmes de traitement distribué',
++                    'Intégrer les principes de sécurité dans la conception des systèmes logiciels',
++                    'Encourager l\'innovation et l\'entrepreneuriat',
++                ],
++                'competences'  => [
++                    'Fondamentaux' => [
++                        'Concevoir, administrer et optimiser des bases de données relationnelles et NoSQL',
++                        'Développer des applications web et mobile modernes et intégrer des services API',
++                        'Maîtriser l\'administration des systèmes d\'exploitation',
++                        'Sécuriser les réseaux et systèmes informatiques contre les cybermenaces',
++                    ],
++                    'Développement logiciel' => [
++                        'Industrialiser avec les méthodes Agile et les outils de développement intégrés',
++                        'Concevoir et déployer des architectures distribuées',
++                        'Créer et déployer des services web dans des environnements cloud',
++                    ],
++                    'Big Data & IA' => [
++                        'Exploiter les technologies du Big Data pour le traitement de grands volumes de données',
++                        'Concevoir et implémenter des algorithmes de Machine Learning et Deep Learning',
++                        'Créer des pipelines d\'orchestration de données',
++                        'Visualiser et analyser les données pour en extraire des insights stratégiques',
++                    ],
++                ],
++                'programme'    => [
++                    'S1' => [
++                        'Statistique Inférentielle (4 cr)',
++                        'Complexité et Structures de Données (5 cr)',
++                        'Réseaux Informatique (5 cr)',
++                        'Électronique Numérique (5 cr)',
++                        'Systèmes d\'Information et Bases de Données (5 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Digitalisation (3 cr)',
++                    ],
++                    'S2' => [
++                        'Technologies Web (5 cr)',
++                        'Modélisation et Simulation des Systèmes (5 cr)',
++                        'Optimisation des Systèmes (5 cr)',
++                        'Technologies de Communication (5 cr)',
++                        'Programmation Objet (4 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Droit, Civisme et Citoyenneté (3 cr)',
++                    ],
++                    'S3' => [
++                        'Advanced Python (5 cr)',
++                        'Systèmes d\'Exploitation (5 cr)',
++                        'MultiMedia et Traitement d\'Image (4 cr)',
++                        'Ingénierie des Bases de Données (5 cr)',
++                        'Programmation Java (5 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Introduction à l\'Intelligence Artificielle (3 cr)',
++                    ],
++                    'S4 – Option Big Data & Data Science' => [
++                        'Fondamentaux des Big Data (5 cr)',
++                        'Intelligence Artificielle Avancée (5 cr)',
++                        'Gouvernance et Gestion des Données (5 cr)',
++                        'Analyse et Visualisation des Données (5 cr)',
++                        'Cybersécurité (4 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Management de l\'entreprise (3 cr)',
++                    ],
++                    'S4 – Option Génie Logiciel' => [
++                        'Développement Full Stack (5 cr)',
++                        'Développement Mobile (5 cr)',
++                        'UX/UI Design (4 cr)',
++                        'Administration et Programmation Système (5 cr)',
++                        'Datawarehouse et Datamining (5 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Management de l\'entreprise (3 cr)',
++                    ],
++                    'S5 – Option Big Data & Data Science' => [
++                        'Big Data Avancées (5 cr)',
++                        'Vision par Ordinateur et Deep Learning (5 cr)',
++                        'Intelligence d\'Affaires pour Big Data (5 cr)',
++                        'Cloud et Virtualisation (4 cr)',
++                        'Sécurité des Données (5 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Compétences pour l\'Emploi (3 cr)',
++                    ],
++                    'S5 – Option Génie Logiciel' => [
++                        'Génie Logiciel et Architecture logicielle (5 cr)',
++                        'Développement JEE (5 cr)',
++                        'Patrons de Conception et Tests Logiciels (5 cr)',
++                        'Gestion des Processus Métiers et CRM (4 cr)',
++                        'DevOps (5 cr)',
++                        'Langues Étrangères (3 cr)',
++                        'Compétences pour l\'Emploi (3 cr)',
++                    ],
++                ],
++                'debouches'    => [
++                    'Développement & Architecture' => ['Ingénieur fullstack', 'Architecte logiciel', 'Expert DevOps'],
++                    'Data & Analyse'               => ['Data Scientist', 'Ingénieur Big Data', 'Analyste Business Intelligence'],
++                    'Sécurité & Systèmes'          => ['Expert cybersécurité', 'Administrateur systèmes', 'Ingénieur cloud'],
++                    'Management & Innovation'       => ['Chef de projet IT', 'Consultant en transformation digitale', 'Product Owner'],
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur ou équivalent (DEUG, DEUST, DUT)',
++                    'Spécialités recommandées : Sciences mathématiques, Sciences & technologies, Informatique',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── GÉNIE ÉLECTRIQUE ────────────────────────────────────────────────────
++            [
++                'slug'         => 'genie-electrique',
++                'title'        => 'Génie Électrique',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/electrical-engineering/',
++                'description'  => 'La formation en Génie Électrique prépare des ingénieurs capables de répondre aux défis des secteurs de l\'énergie, de l\'électronique de puissance, de l\'automatisme, de l\'IA embarquée et de la robotique. Elle intègre deux axes de spécialisation : TERI (Transition Énergétique et Réseaux Intelligents) et SEIA (Systèmes Embarqués et Intelligence Artificielle). La filière encourage l\'ouverture internationale avec des partenariats de double diplôme.',
++                'objectifs'    => [
++                    'Maîtriser l\'électronique, l\'électronique de puissance et l\'automatisme',
++                    'Concevoir des systèmes IoT intelligents avec intégration cloud/edge computing',
++                    'Piloter et superviser des procédés industriels en temps réel',
++                    'Concevoir et dimensionner des installations de production décentralisée (énergies renouvelables)',
++                    'Gérer la qualité de l\'énergie et la stabilité des réseaux électriques',
++                    'Déployer des modèles IA sur plateformes embarquées',
++                ],
++                'competences'  => [
++                    'Systèmes Embarqués et IA' => [
++                        'Conception et développement de systèmes embarqués et temps réel',
++                        'Conception de systèmes IoT intelligents',
++                        'Cybersécurité des systèmes embarqués et communicants',
++                        'Déploiement de modèles IA sur plateformes embarquées',
++                    ],
++                    'Transition Energétique et Réseaux Intelligents' => [
++                        'Conception et dimensionnement des installations de production décentralisée',
++                        'Gestion de la qualité de l\'énergie et de la stabilité des réseaux',
++                        'Modélisation et optimisation des chaînes de conversion de l\'énergie',
++                        'Intégration des véhicules électriques et des systèmes de stockage',
++                    ],
++                    'Compétences Transversales' => [
++                        'Rédaction de documents techniques et communication',
++                        'Maîtrise des concepts mathématiques appliqués',
++                        'Adaptabilité et aptitude au travail en équipe',
++                    ],
++                ],
++                'programme'    => [
++                    'S5' => [
++                        'Maths pour Ingénieur 1',
++                        'Ondes/propagation & antennes',
++                        'Electronique analogique',
++                        'Circuits électriques et magnétiques',
++                        'Transfert thermique et Mécanique des fluides',
++                        'Langues Étrangères 1',
++                        'Compétences Numériques & Programmation',
++                    ],
++                    'S6' => [
++                        'Capteurs et Actionneurs',
++                        'Machines à courant continu et schémas électrotechniques',
++                        'Electronique numérique avancée',
++                        'Electronique de Puissance 1',
++                        'Asservissement Continu et échantillonné',
++                        'Langues Étrangères 2',
++                        'Culture & arts & sport skills',
++                    ],
++                    'S7' => [
++                        'Informatique Industrielle',
++                        'Machines Synchrones et Asynchrones',
++                        'Transmission numérique – Réseaux Informatiques',
++                        'Electronique de Puissance 2',
++                        'Régulation industrielle et intelligente',
++                        'Langues Étrangères 3',
++                        'Introduction à l\'Intelligence Artificielle',
++                    ],
++                    'S8' => [
++                        'Association Convertisseur Machine – Entraînement variable [TERI]',
++                        'Analyse et CAO Circuits intégrés [SEIA]',
++                        'Systèmes automatisés et IHM',
++                        'Production d\'énergie et énergies renouvelables [TERI]',
++                        'Informatique & Intelligence Embarquées [SEIA]',
++                        'Systèmes multivariables, commande optimale et prédictive',
++                        'Réseaux Électriques [TERI]',
++                        'Systèmes embarqués et temps réel [SEIA]',
++                        'Langues Étrangères 4',
++                        'Gestion de l\'entreprise et son environnement Économique',
++                    ],
++                    'S9' => [
++                        'Transport Énergie et stabilité Réseaux [TERI]',
++                        'Robotique industrielle et collaborative [SEIA]',
++                        'Communication industrielle et Supervision',
++                        'Réseaux électriques intelligents : Génération distribuée [TERI]',
++                        'Apprentissage Artificiel et Vision par Ordinateur [SEIA]',
++                        'Mobilité verte [TERI]',
++                        'Systèmes embarqués – véhicule autonome [SEIA]',
++                        'Qualité et management de l\'énergie [TERI]',
++                        'Internet des Objets et Systèmes Cyberphysiques [SEIA]',
++                        'Langues Étrangères 5',
++                        'Employment Skills',
++                    ],
++                    'S10' => ['Projet de Fin d\'Études (PFE) – durée minimale 4 mois'],
++                ],
++                'debouches'    => [
++                    'Ingénieur smart grid / réseaux intelligents',
++                    'Ingénieur en intelligence artificielle embarquée',
++                    'Ingénieur énergies renouvelables',
++                    'Ingénieur en mobilité électrique',
++                    'Chef de projet en intégration de sources renouvelables',
++                    'Chef de projet en systèmes connectés',
++                    'Consultant en transition énergétique',
++                    'Doctorat dans un domaine de pointe (IA, smart grids, systèmes critiques…)',
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur / en ingénierie, DEUG, DEUST, DEUP, DUT',
++                    'Spécialités recommandées : Sciences de l\'ingénieur, Sciences de la matière / physique, Sciences & technologies',
++                ],
++                'partenariats' => [
++                    'Polytech TOURS',
++                    'Polytech LILLE (double diplôme et mobilité)',
++                    'Polytech Angers',
++                    'Polytech Nantes',
++                    'INSA Centre Val de Loire (double diplôme et mobilité)',
++                    'ESIX',
++                ],
++            ],
++
++            // ─── GÉNIE INDUSTRIEL ────────────────────────────────────────────────────
++            [
++                'slug'         => 'genie-industriel',
++                'title'        => 'Génie Industriel',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/industrial-engineering/',
++                'description'  => 'La formation en Génie Industriel prépare des ingénieurs capables de concevoir, optimiser et gérer des systèmes complexes intégrant les nouvelles technologies. Les lauréats gèrent des projets industriels nationaux et internationaux en intégrant les enjeux humains, environnementaux et économiques, dans le respect de l\'éthique, du développement durable et des réglementations.',
++                'objectifs'    => [
++                    'Maîtriser les outils et techniques de l\'ingénierie industrielle (modélisation, simulation, optimisation)',
++                    'Gérer la complexité des systèmes industriels modernes',
++                    'Développer des compétences en gestion de la chaîne d\'approvisionnement globale et logistique',
++                    'Mettre en œuvre le Lean Manufacturing et le Six Sigma',
++                    'Optimiser les performances et l\'efficacité des processus industriels',
++                    'Favoriser l\'innovation technologique et l\'usine du futur',
++                ],
++                'competences'  => [
++                    'Concevoir, piloter et améliorer un système industriel et la chaîne logistique',
++                    'Manager des équipes multidisciplinaires et des projets d\'amélioration continue',
++                    'Anticiper les évolutions et intégrer les innovations de l\'usine du futur',
++                    'Gérer des projets industriels avec une dimension nationale et internationale',
++                ],
++                'programme'    => [
++                    'S5' => [
++                        'Statistiques Inférentielle (4 cr)',
++                        'Réseaux et Protocoles (5 cr)',
++                        'Complexité et Structures de données (5 cr)',
++                        'Systèmes d\'information et Technologies des bases de données (5 cr)',
++                        'Électronique numérique et analogique (5 cr)',
++                        'Compétences Numériques et Programmation (3 cr)',
++                        'Langues (3 cr)',
++                    ],
++                    'S6' => [
++                        'Optimisation et Systèmes Industriels (5 cr)',
++                        'Développement WEB (5 cr)',
++                        'Modélisation et simulation numérique pour l\'industrie (5 cr)',
++                        'POO (4 cr)',
++                        'Télécommunications et communication des systèmes intelligents (5 cr)',
++                        'Langues (3 cr)',
++                        'Citoyenneté et vie publique (3 cr)',
++                    ],
++                    'S7' => [
++                        'Management de la Qualité et Excellence Opérationnelle (5 cr)',
++                        'CFAO et Procédés Industriels (5 cr)',
++                        'Gestion de la Production (5 cr)',
++                        'Analyse Financière et Gestion des coûts (4 cr)',
++                        'SCM (5 cr)',
++                        'Langues (3 cr)',
++                        'Introduction à l\'IA (3 cr)',
++                    ],
++                    'S8' => [
++                        'IA for Industrial Business Process Management (5 cr)',
++                        'Management de la maintenance et Sûreté de fonctionnement (5 cr)',
++                        'Systèmes d\'Informations Intégrés (ERP) (5 cr)',
++                        'Ordonnancement (5 cr)',
++                        'Automatisme et Robotique (4 cr)',
++                        'Langues (3 cr)',
++                        'Management de l\'entreprise (3 cr)',
++                    ],
++                    'S9' => [
++                        'Performance, Durabilité et Résilience (5 cr)',
++                        'Industrial Data Driving et prise de décision (5 cr)',
++                        'Analyse de Données Intelligente pour l\'Ingénierie Industrielle (5 cr)',
++                        'Cloud et Cybersécurité (4 cr)',
++                        'Réalité Étendue (XR) et Vision Industrielle (5 cr)',
++                        'Langues (3 cr)',
++                        'Employment Skills (3 cr)',
++                    ],
++                    'S10' => ['Projet de Fin d\'Études (PFE) (30 cr)'],
++                ],
++                'debouches'    => [
++                    'Ingénieur en production, supply chain et qualité',
++                    'Ingénieur en maintenance',
++                    'Ingénieur en robotique et automatisation',
++                    'Consultant en ingénierie industrielle',
++                    'Chef de projet industriel',
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur ou équivalent',
++                    'Spécialités recommandées : Sciences de l\'ingénieur, Sciences & technologies',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── GÉNIE MÉCATRONIQUE ──────────────────────────────────────────────────
++            [
++                'slug'         => 'genie-mecatronique',
++                'title'        => 'Génie Mécatronique',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/automotive-mechatronics-engineering/',
++                'description'  => 'La spécialité mécatronique forme des ingénieurs aptes à développer des projets pluridisciplinaires intégrant informatique, automatisme, électronique et mécanique. La filière est orientée vers le secteur automobile, secteur émergent prioritaire au Maroc, et allie études théoriques et réalisations pratiques.',
++                'objectifs'    => [
++                    'Développer des projets pluridisciplinaires intégrant informatique, automatisme, électronique et mécanique',
++                    'Spécialiser les étudiants dans le secteur automobile',
++                    'Former des ingénieurs polyvalents capables de s\'intégrer dans l\'industrie moderne',
++                ],
++                'competences'  => [
++                    'Techniques fondamentales' => [
++                        'Informatique industrielle',
++                        'Automatisme',
++                        'Électronique',
++                        'Systèmes embarqués',
++                        'Robotique',
++                        'Mécanique',
++                    ],
++                    'Transversales' => [
++                        'Maîtrise de langues étrangères',
++                        'Conduite de projet',
++                        'Management des ressources humaines',
++                        'Gestion des ressources financières',
++                    ],
++                    'Gestion et production' => [
++                        'Gérer efficacement une cellule de production',
++                        'Superviser un travail de groupe',
++                        'S\'intégrer efficacement au sein d\'une entité privée ou publique',
++                    ],
++                ],
++                'programme'    => [
++                    '1ère année' => ['Programme disponible en PDF sur le site ENSA'],
++                    '2ème année' => ['Programme disponible en PDF sur le site ENSA'],
++                    '3ème année' => ['Programme disponible en PDF sur le site ENSA'],
++                ],
++                'debouches'    => [
++                    'Ingénieur mécatronique dans le secteur automobile',
++                    'Ingénieur en systèmes embarqués',
++                    'Ingénieur en robotique',
++                    'Responsable de production',
++                    'Chef de projet mécatronique',
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur ou équivalent',
++                    'Spécialités recommandées : Sciences de l\'ingénieur, Mécanique, Électronique',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── GÉNIE DES RÉSEAUX ET TÉLÉCOMMUNICATIONS ────────────────────────────
++            [
++                'slug'         => 'genie-reseaux-telecommunications',
++                'title'        => 'Génie des Réseaux et Systèmes de Télécommunication',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/networks-and-telecommunications-systems/',
++                'description'  => 'Cette formation prépare les étudiants à une carrière dans le domaine des réseaux et des systèmes de télécommunication. Elle propose trois options de spécialisation : Sécurité des Réseaux et des Systèmes d\'Information, Ingénierie des Systèmes Connectés et Réseaux Mobiles, et Ingénierie des Systèmes Ubiquitaires.',
++                'objectifs'    => [
++                    'Acquérir une connaissance approfondie des principes fondamentaux des réseaux',
++                    'Se familiariser avec les réseaux cellulaires, de données, sans fil, satellites et optiques',
++                    'Concevoir, mettre en œuvre, gérer et maintenir des réseaux et systèmes de télécommunication',
++                    'Apprendre les principes de sécurité des réseaux et des systèmes de télécommunication',
++                    'Suivre les évolutions rapides et appliquer des technologies innovantes (5G/6G, IoT)',
++                    'Développer des compétences en travail d\'équipe et gestion de projet',
++                ],
++                'competences'  => [
++                    'Comprendre et maîtriser les architectures, protocoles et technologies des réseaux câblés, sans fil, mobiles et optiques',
++                    'Configurer, installer et maintenir des équipements réseau (routeurs, commutateurs, points d\'accès)',
++                    'Gérer et administrer des systèmes de télécommunication à grande échelle',
++                    'Concevoir et déployer des réseaux efficaces en tenant compte de la bande passante, latence et sécurité',
++                    'Comprendre les principes de base de la sécurité réseau et mettre en œuvre des stratégies de protection',
++                    'Maîtriser la virtualisation des réseaux (SDN) et le cloud computing',
++                    'Suivre les évolutions technologiques : 5G/6G, environnements connectés intelligents',
++                ],
++                'programme'    => [
++                    'S5 (Tronc commun)' => [
++                        'Systèmes d\'Information et Technologies des Bases de Données',
++                        'Electronique Analogique et Numérique',
++                        'Complexité des Algorithmes et Structures de données',
++                        'Statistique Inférentielle',
++                        'Réseaux Locaux et Protocoles',
++                        'Langues Étrangères I',
++                        'Compétences Numériques et Programmation',
++                    ],
++                    'S6 (Tronc commun)' => [
++                        'Modélisation et Simulation Numérique pour l\'Industrie',
++                        'Technologies Web',
++                        'Optimisation et Systèmes Industriels',
++                        'Technologies de Communication pour Systèmes Intelligents',
++                        'Programmation Orientée Objet',
++                        'Langues Étrangères 2',
++                        'Droit, Civisme et Citoyenneté',
++                        'Stage',
++                    ],
++                    'S7 (Tronc commun)' => [
++                        'Signaux et Systèmes pour les Télécommunications',
++                        'Réseaux Étendus et Protocoles',
++                        'Ingénierie des Réseaux Fixes et Mobiles',
++                        'Systèmes Microprogrammés',
++                        'Communications Numériques',
++                        'Langues Étrangères 3',
++                        'Introduction à l\'Intelligence Artificielle',
++                    ],
++                    'S8 – Option Sécurité des Réseaux' => [
++                        'Cryptographie et Stéganographie',
++                        'Connectivité Cellulaire et Réseaux Mobiles Avancés',
++                        'Théorie de l\'Information et Codage de Canal',
++                        'Administration et Sécurité des Systèmes et Réseaux',
++                        'Communications Optiques et Satellitaires',
++                        'Langues Étrangères 4',
++                        'Stage',
++                    ],
++                    'S8 – Option Systèmes Connectés et Réseaux Mobiles' => [
++                        'Data Science',
++                        'Connectivité Cellulaire et Réseaux Mobiles Avancés',
++                        'SDN Cloud et Virtualisation',
++                        'Communications Optiques et Satellitaires',
++                        'Langues Étrangères 4',
++                        'Stage',
++                    ],
++                    'S8 – Option Systèmes Ubiquitaires' => [
++                        'Data Science',
++                        'IoT/WSN pour la Transformation Numérique',
++                        'Communications Optiques et Satellitaires',
++                        'Langues Étrangères 4',
++                        'Stage',
++                    ],
++                    'S9 – Option Sécurité des Réseaux' => [
++                        'Sécurité des Réseaux Mobiles et Sans Fil',
++                        'IA Appliquée aux Télécoms',
++                        'Cybersécurité, Blockchain et GRC',
++                        'Communications Mobiles et Radio Logicielle',
++                        'Sécurité des Infrastructures Critiques',
++                        'PFE',
++                    ],
++                    'S9 – Option Systèmes Connectés et Réseaux Mobiles' => [
++                        'Vision Par Ordinateur',
++                        'IA Appliquée aux Télécoms',
++                        'Systèmes 5G et Environnements Intelligents',
++                        'Antennes et Radars',
++                        'PFE',
++                    ],
++                    'S9 – Option Systèmes Ubiquitaires' => [
++                        'Ingénierie RF et Microonde',
++                        'IA Appliquée aux Télécoms',
++                        'Systèmes Embarqués Temps Réel',
++                        'Conception des Circuits VLSI',
++                        'PFE',
++                    ],
++                ],
++                'debouches'    => [
++                    'Ingénieur réseau, administrateur réseaux et système',
++                    'Ingénieur en sécurité réseau et systèmes, expert cybersécurité',
++                    'Architecte réseau',
++                    'Spécialiste en télécommunications (fixe, mobile, données)',
++                    'Ingénieur cloud et virtualisation',
++                    'Expert en IoT',
++                    'Ingénieur en télécommunications mobiles (5G/6G)',
++                    'Chercheur en technologies mobiles et IoT',
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur ou équivalent',
++                    'Spécialités recommandées : Sciences de l\'ingénieur, Électronique, Informatique, Télécommunications',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── EFFICACITÉ ÉNERGÉTIQUE ET BÂTIMENT INTELLIGENT ─────────────────────
++            [
++                'slug'         => 'efficacite-energetique-batiment-intelligent',
++                'title'        => 'Efficacité Énergétique et Bâtiment Intelligent',
++                'category'     => 'cycle_ingenieur',
++                'type'         => 'ingenieur',
++                'duree_annees' => 3,
++                'source_url'   => 'https://ensa.uit.ac.ma/energy-efficiency-and-intelligent-buildings/',
++                'description'  => 'Formation d\'ingénieurs spécialisés dans l\'efficacité énergétique, la gestion intelligente des bâtiments et les solutions durables. Elle couvre les systèmes de gestion de l\'énergie, les bâtiments connectés, les technologies de construction intelligente et les énergies renouvelables appliquées au bâtiment.',
++                'objectifs'    => [
++                    'Former des ingénieurs spécialisés dans les systèmes énergétiques du bâtiment',
++                    'Maîtriser les techniques d\'optimisation de la consommation énergétique',
++                    'Concevoir et gérer des bâtiments intelligents (domotique, IoT, BMS)',
++                    'Intégrer les énergies renouvelables dans les solutions bâtiment',
++                ],
++                'competences'  => [
++                    'Systèmes de gestion de l\'énergie dans le bâtiment',
++                    'Technologies de bâtiments intelligents (BMS, KNX, SCADA)',
++                    'Efficacité énergétique et audit énergétique',
++                    'Énergies renouvelables appliquées au bâtiment',
++                    'Climatisation, ventilation et chauffage',
++                    'Réglementation thermique et certification HQE/LEED',
++                ],
++                'programme'    => [],
++                'debouches'    => [
++                    'Ingénieur en efficacité énergétique',
++                    'Consultant en bâtiment intelligent',
++                    'Chef de projet construction durable',
++                    'Responsable HSE et transition énergétique',
++                    'Auditeur énergétique',
++                ],
++                'acces'        => [
++                    'Diplômes requis : 2 années préparatoires cycle ingénieur ou équivalent',
++                    'Spécialités recommandées : Sciences de l\'ingénieur, Génie civil, Physique, Électrotechnique',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── LICENCE UNIVERSITAIRE SPÉCIALISÉE ──────────────────────────────────
++            [
++                'slug'         => 'licence-universitaire-specialisee',
++                'title'        => 'Licence Universitaire Spécialisée (LUS)',
++                'category'     => 'formation_continue',
++                'type'         => 'licence',
++                'duree_annees' => 1,
++                'source_url'   => 'https://ensa.uit.ac.ma/specialized-university-license/',
++                'description'  => 'La Licence Universitaire Spécialisée est une formation continue de niveau Bac+3 proposée par l\'ENSA Kénitra pour permettre aux professionnels et aux titulaires d\'un DUT/BTS d\'acquérir une qualification supplémentaire dans un domaine spécialisé. Elle allie théorie et pratique pour répondre aux besoins concrets du marché du travail.',
++                'objectifs'    => [
++                    'Permettre aux professionnels de se spécialiser dans un domaine précis',
++                    'Offrir une qualification de niveau licence à des titulaires de DUT/BTS',
++                    'Répondre aux besoins des entreprises en compétences techniques spécialisées',
++                ],
++                'competences'  => [],
++                'programme'    => [],
++                'debouches'    => [
++                    'Technicien supérieur spécialisé',
++                    'Responsable technique en entreprise',
++                    'Poursuite d\'études en Master',
++                ],
++                'acces'        => [
++                    'Diplômes requis : DUT, BTS ou équivalent Bac+2 dans le domaine',
++                    'Sélection sur dossier et/ou entretien',
++                ],
++                'partenariats' => [],
++            ],
++
++            // ─── MASTER UNIVERSITAIRE SPÉCIALISÉ ────────────────────────────────────
++            [
++                'slug'         => 'master-universitaire-specialise',
++                'title'        => 'Master Universitaire Spécialisé (MUS)',
++                'category'     => 'formation_continue',
++                'type'         => 'master',
++                'duree_annees' => 1,
++                'source_url'   => 'https://ensa.uit.ac.ma/specialized-university-master/',
++                'description'  => 'Le Master Universitaire Spécialisé est une formation continue de niveau Bac+5 proposée par l\'ENSA Kénitra. Elle s\'adresse aux ingénieurs et cadres souhaitant approfondir leur expertise dans un domaine technologique ou managérial, en combinant enseignements académiques et mise en pratique professionnelle.',
++                'objectifs'    => [
++                    'Permettre aux ingénieurs et cadres d\'approfondir leur expertise',
++                    'Développer des compétences avancées en management et technologies',
++                    'Favoriser la recherche appliquée et l\'innovation en entreprise',
++                ],
++                'competences'  => [],
++                'programme'    => [],
++                'debouches'    => [
++                    'Expert technique ou managérial en entreprise',
++                    'Consultant senior',
++                    'Poursuite en Doctorat',
++                    'Responsable R&D',
++                ],
++                'acces'        => [
++                    'Diplômes requis : Diplôme d\'ingénieur, Master ou équivalent Bac+5',
++                    'Expérience professionnelle souhaitée',
++                    'Sélection sur dossier et entretien',
++                ],
++                'partenariats' => [],
++            ],
++
++        ];
++
++        foreach ($formations as $data) {
++            Formation::create($data);
++        }
++    }
++}
+diff --git a/resources/views/formations/index.blade.php b/resources/views/formations/index.blade.php
+new file mode 100644
+index 0000000..4e94b61
+--- /dev/null
++++ b/resources/views/formations/index.blade.php
+@@ -0,0 +1,250 @@
++@extends('layouts.app')
++
++@section('title', 'Formations ENSA Kénitra')
++
++@section('content')
++
++<style>
++    .formations-hero {
++        text-align: center;
++        padding: 48px 24px 32px;
++        margin-bottom: 32px;
++    }
++    .formations-hero h1 {
++        font-size: 2.6rem;
++        font-weight: 800;
++        color: var(--text-primary);
++        margin-bottom: 12px;
++    }
++    .formations-hero .gradient-title {
++        background: linear-gradient(135deg, #22c55e 0%, #6EE7B7 100%);
++        -webkit-background-clip: text;
++        background-clip: text;
++        -webkit-text-fill-color: transparent;
++    }
++    .formations-hero p {
++        max-width: 720px;
++        margin: 0 auto 20px;
++        font-size: 1.1rem;
++        color: var(--text-muted);
++        line-height: 1.6;
++    }
++
++    .category-filters {
++        display: flex;
++        flex-wrap: wrap;
++        gap: 10px;
++        justify-content: center;
++        margin-bottom: 40px;
++    }
++    .category-filters a {
++        padding: 8px 18px;
++        border-radius: 999px;
++        font-size: 14px;
++        font-weight: 600;
++        text-decoration: none;
++        transition: all 0.2s ease;
++        border: 1px solid var(--border-color);
++        color: var(--text-secondary);
++        background: rgba(255, 255, 255, 0.5);
++    }
++    .category-filters a:hover {
++        background: var(--primary-glow);
++        border-color: var(--border-hover);
++        color: var(--primary-hover);
++    }
++    .category-filters a.active {
++        background: linear-gradient(135deg, #22c55e 0%, #6EE7B7 100%);
++        color: #fff;
++        border-color: transparent;
++        box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.30);
++    }
++
++    .formation-group-title {
++        font-size: 1.5rem;
++        font-weight: 700;
++        color: var(--text-primary);
++        margin: 32px 0 20px;
++        padding-left: 16px;
++        border-left: 4px solid #22c55e;
++    }
++
++    .formation-card {
++        background: var(--bg-card);
++        border: 1px solid var(--border-color);
++        border-radius: 18px;
++        padding: 24px;
++        height: 100%;
++        display: flex;
++        flex-direction: column;
++        transition: all 0.3s ease;
++        backdrop-filter: blur(12px);
++        -webkit-backdrop-filter: blur(12px);
++    }
++    .formation-card:hover {
++        transform: translateY(-4px);
++        box-shadow: 0 18px 40px -10px rgba(15, 23, 42, 0.12);
++        border-color: var(--border-hover);
++        background: var(--bg-card-hover);
++    }
++    .formation-card .badge-category {
++        display: inline-block;
++        background: var(--primary-glow);
++        color: var(--primary-hover);
++        font-size: 11px;
++        font-weight: 700;
++        text-transform: uppercase;
++        letter-spacing: 0.05em;
++        padding: 4px 10px;
++        border-radius: 999px;
++        margin-bottom: 12px;
++        align-self: flex-start;
++    }
++    .formation-card h3 {
++        font-size: 1.15rem;
++        font-weight: 700;
++        color: var(--text-primary);
++        margin-bottom: 10px;
++        line-height: 1.3;
++    }
++    .formation-card p {
++        font-size: 0.95rem;
++        color: var(--text-muted);
++        line-height: 1.55;
++        flex-grow: 1;
++        margin-bottom: 16px;
++    }
++    .formation-card .formation-meta {
++        display: flex;
++        justify-content: space-between;
++        align-items: center;
++        padding-top: 12px;
++        border-top: 1px solid var(--border-color);
++    }
++    .formation-card .duration {
++        font-size: 0.85rem;
++        color: var(--text-muted);
++        font-weight: 500;
++    }
++    .formation-card .read-more-link {
++        font-size: 0.9rem;
++        font-weight: 600;
++        color: var(--primary-hover);
++        text-decoration: none;
++        display: inline-flex;
++        align-items: center;
++        gap: 6px;
++    }
++    .formation-card .read-more-link:hover {
++        color: #16a34a;
++    }
++
++    .formations-stats {
++        display: grid;
++        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
++        gap: 20px;
++        margin-top: 64px;
++        padding: 32px;
++        background: var(--bg-card);
++        border: 1px solid var(--border-color);
++        border-radius: 20px;
++        backdrop-filter: blur(12px);
++    }
++    .formations-stats .stat-item {
++        text-align: center;
++    }
++    .formations-stats .stat-value {
++        font-size: 2rem;
++        font-weight: 800;
++        background: linear-gradient(135deg, #22c55e 0%, #6EE7B7 100%);
++        -webkit-background-clip: text;
++        background-clip: text;
++        -webkit-text-fill-color: transparent;
++        display: block;
++        margin-bottom: 4px;
++    }
++    .formations-stats .stat-label {
++        font-size: 0.85rem;
++        color: var(--text-muted);
++        font-weight: 500;
++    }
++</style>
++
++<section class="formations-hero">
++    <h1>Formations de l'<span class="gradient-title">ENSA Kénitra</span></h1>
++    <p>
++        L'École Nationale des Sciences Appliquées de Kénitra forme des ingénieurs d'excellence depuis 2008.
++        Découvrez l'ensemble des formations proposées : classes préparatoires, cycle ingénieur et formation continue.
++    </p>
++    <a href="https://ensa.uit.ac.ma" target="_blank" rel="noopener" class="btn btn-secondary">
++        🌐 Site officiel ENSA
++    </a>
++</section>
++
++{{-- Category filter --}}
++<div class="category-filters">
++    <a href="{{ route('formations.index') }}" class="{{ !$category ? 'active' : '' }}">Toutes les formations</a>
++    @foreach ($categories as $key => $label)
++        <a href="{{ route('formations.index', ['category' => $key]) }}"
++           class="{{ $category === $key ? 'active' : '' }}">
++            {{ $label }}
++        </a>
++    @endforeach
++</div>
++
++{{-- Formation groups --}}
++@forelse($formations as $catKey => $group)
++    <section>
++        <h2 class="formation-group-title">{{ $categories[$catKey] ?? ucfirst($catKey) }}</h2>
++        <div class="posts-grid">
++            @foreach ($group as $f)
++                <article class="formation-card">
++                    <span class="badge-category">{{ $f->category_label }}</span>
++                    <h3>{{ $f->title }}</h3>
++                    <p>{{ Str::limit($f->description, 180, '…') }}</p>
++                    <div class="formation-meta">
++                        <span class="duration">
++                            ⏱ {{ $f->duree_annees }} an{{ $f->duree_annees > 1 ? 's' : '' }}
++                        </span>
++                        <a href="{{ route('formations.show', $f->slug) }}" class="read-more-link">
++                            Voir détails
++                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
++                                <line x1="5" y1="12" x2="19" y2="12"></line>
++                                <polyline points="12 5 19 12 12 19"></polyline>
++                            </svg>
++                        </a>
++                    </div>
++                </article>
++            @endforeach
++        </div>
++    </section>
++@empty
++    <div class="empty-state glass" style="grid-column: 1 / -1;">
++        <div class="empty-state-icon">📚</div>
++        <h3>Aucune formation trouvée</h3>
++        <p>Aucune formation ne correspond à votre filtre.</p>
++        <a href="{{ route('formations.index') }}" class="btn btn-secondary">Voir toutes les formations</a>
++    </div>
++@endforelse
++
++{{-- Stats banner --}}
++<section class="formations-stats">
++    <div class="stat-item">
++        <span class="stat-value">{{ $formations->flatten()->count() }}</span>
++        <span class="stat-label">Formations proposées</span>
++    </div>
++    <div class="stat-item">
++        <span class="stat-value">{{ $formations->flatten()->where('category', 'cycle_ingenieur')->count() }}</span>
++        <span class="stat-label">Filières d'ingénieur</span>
++    </div>
++    <div class="stat-item">
++        <span class="stat-value">{{ $formations->flatten()->where('category', 'preparatoire')->count() }}</span>
++        <span class="stat-label">Années préparatoires</span>
++    </div>
++    <div class="stat-item">
++        <span class="stat-value">3</span>
++        <span class="stat-label">Partenariats internationaux</span>
++    </div>
++</section>
++
++@endsection
+diff --git a/resources/views/formations/show.blade.php b/resources/views/formations/show.blade.php
+new file mode 100644
+index 0000000..48801a0
+--- /dev/null
++++ b/resources/views/formations/show.blade.php
+@@ -0,0 +1,497 @@
++@extends('layouts.app')
++
++@section('title', $formation->title)
++
++@section('content')
++
++<style>
++    .formation-layout {
++        display: grid;
++        grid-template-columns: 2fr 1fr;
++        gap: 32px;
++        align-items: start;
++    }
++    .formation-layout .formation-main {
++        min-width: 0;
++    }
++    .formation-layout .formation-sidebar {
++        min-width: 0;
++        position: sticky;
++        top: 24px;
++    }
++    @media (max-width: 992px) {
++        .formation-layout {
++            grid-template-columns: 1fr;
++        }
++        .formation-layout .formation-sidebar {
++            position: static;
++        }
++    }
++    .formation-detail-hero {
++        position: relative;
++        overflow: hidden;
++        background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #6EE7B7 100%);
++        color: #fff;
++        padding: 56px 40px;
++        border-radius: 24px;
++        margin-bottom: 40px;
++        box-shadow: 0 18px 40px -10px rgba(34, 197, 94, 0.30);
++    }
++    .formation-detail-hero::before {
++        content: '';
++        position: absolute;
++        inset: 0;
++        background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18) 0%, transparent 60%);
++        pointer-events: none;
++    }
++    .formation-detail-hero > * {
++        position: relative;
++        z-index: 1;
++    }
++    .formation-detail-hero .badge-cat {
++        display: inline-block;
++        background: rgba(255, 255, 255, 0.95);
++        color: #16a34a;
++        font-size: 12px;
++        font-weight: 700;
++        text-transform: uppercase;
++        letter-spacing: 0.05em;
++        padding: 5px 12px;
++        border-radius: 999px;
++        margin-bottom: 16px;
++    }
++    .formation-detail-hero h1 {
++        font-size: 2.4rem;
++        font-weight: 800;
++        line-height: 1.15;
++        margin: 0 0 16px;
++        max-width: 800px;
++    }
++    .formation-detail-hero .hero-desc {
++        font-size: 1.05rem;
++        line-height: 1.65;
++        max-width: 800px;
++        opacity: 0.95;
++        margin-bottom: 24px;
++    }
++    .formation-detail-hero .hero-meta {
++        display: flex;
++        flex-wrap: wrap;
++        gap: 12px;
++    }
++    .formation-detail-hero .hero-meta .pill {
++        background: rgba(255, 255, 255, 0.95);
++        color: #0f172a;
++        padding: 8px 14px;
++        border-radius: 999px;
++        font-size: 0.9rem;
++        font-weight: 600;
++        text-decoration: none;
++        display: inline-flex;
++        align-items: center;
++        gap: 6px;
++    }
++    .formation-detail-hero .hero-meta .pill:hover {
++        background: #fff;
++    }
++
++    .formation-breadcrumb {
++        margin-bottom: 24px;
++        font-size: 0.9rem;
++        color: var(--text-muted);
++    }
++    .formation-breadcrumb a {
++        color: var(--primary-hover);
++        text-decoration: none;
++        font-weight: 500;
++    }
++    .formation-breadcrumb a:hover {
++        text-decoration: underline;
++    }
++    .formation-breadcrumb .sep {
++        margin: 0 8px;
++        opacity: 0.5;
++    }
++    .formation-breadcrumb .current {
++        color: var(--text-primary);
++        font-weight: 600;
++    }
++
++    .formation-section {
++        margin-bottom: 40px;
++    }
++    .formation-section h2 {
++        font-size: 1.4rem;
++        font-weight: 700;
++        color: var(--text-primary);
++        margin-bottom: 16px;
++        display: flex;
++        align-items: center;
++        gap: 10px;
++    }
++    .formation-section h2 .icon {
++        font-size: 1.5rem;
++    }
++    .formation-section ul {
++        list-style: none;
++        padding: 0;
++        margin: 0;
++    }
++    .formation-section ul li {
++        padding: 8px 0 8px 28px;
++        position: relative;
++        color: var(--text-secondary);
++        line-height: 1.55;
++    }
++    .formation-section ul li::before {
++        content: '✓';
++        position: absolute;
++        left: 0;
++        top: 8px;
++        color: #22c55e;
++        font-weight: 700;
++    }
++    .formation-section .skill-group {
++        background: var(--bg-card);
++        border: 1px solid var(--border-color);
++        border-radius: 14px;
++        padding: 20px 24px;
++        margin-bottom: 14px;
++        backdrop-filter: blur(8px);
++    }
++    .formation-section .skill-group h3 {
++        font-size: 1.05rem;
++        font-weight: 700;
++        color: #16a34a;
++        margin-bottom: 10px;
++    }
++
++    .programme-accordion {
++        background: var(--bg-card);
++        border: 1px solid var(--border-color);
++        border-radius: 14px;
++        overflow: hidden;
++        margin-bottom: 10px;
++    }
++    .programme-toggle {
++        width: 100%;
++        background: none;
++        border: none;
++        padding: 16px 20px;
++        text-align: left;
++        font-family: inherit;
++        font-size: 1rem;
++        font-weight: 600;
++        color: var(--text-primary);
++        cursor: pointer;
++        display: flex;
++        justify-content: space-between;
++        align-items: center;
++        transition: background 0.2s ease;
++    }
++    .programme-toggle:hover {
++        background: var(--primary-glow);
++    }
++    .programme-toggle .chev {
++        transition: transform 0.25s ease;
++        color: #22c55e;
++    }
++    .programme-toggle[aria-expanded="true"] .chev {
++        transform: rotate(180deg);
++    }
++    .programme-content {
++        display: none;
++        padding: 0 20px 20px;
++        border-top: 1px solid var(--border-color);
++    }
++    .programme-content.open {
++        display: block;
++    }
++    .programme-content ul {
++        list-style: none;
++        padding: 0;
++        margin: 16px 0 0;
++    }
++    .programme-content ul li {
++        padding: 6px 0 6px 22px;
++        position: relative;
++        color: var(--text-secondary);
++        line-height: 1.5;
++    }
++    .programme-content ul li::before {
++        content: '📘';
++        position: absolute;
++        left: 0;
++        top: 6px;
++        font-size: 0.85rem;
++    }
++
++    .formation-sidebar-card {
++        background: var(--bg-card);
++        border: 1px solid var(--border-color);
++        border-radius: 16px;
++        padding: 22px;
++        margin-bottom: 20px;
++        backdrop-filter: blur(8px);
++    }
++    .formation-sidebar-card h3 {
++        font-size: 1.1rem;
++        font-weight: 700;
++        color: var(--text-primary);
++        margin-bottom: 14px;
++        display: flex;
++        align-items: center;
++        gap: 8px;
++    }
++    .formation-sidebar-card ul {
++        list-style: none;
++        padding: 0;
++        margin: 0;
++    }
++    .formation-sidebar-card ul li {
++        padding: 5px 0;
++        color: var(--text-secondary);
++        font-size: 0.92rem;
++        line-height: 1.5;
++    }
++    .formation-sidebar-card .job-domain {
++        font-weight: 700;
++        color: #16a34a;
++        margin-top: 10px;
++        font-size: 0.95rem;
++    }
++    .formation-sidebar-card .job-domain:first-child {
++        margin-top: 0;
++    }
++    .formation-sidebar-card ul.jobs {
++        margin-bottom: 8px;
++    }
++    .formation-sidebar-card ul.jobs li {
++        padding-left: 16px;
++        position: relative;
++    }
++    .formation-sidebar-card ul.jobs li::before {
++        content: '🔹';
++        position: absolute;
++        left: 0;
++        font-size: 0.7rem;
++        top: 7px;
++    }
++    .formation-sidebar-card ul.access li::before {
++        content: '✅';
++        margin-right: 6px;
++    }
++
++    .formation-cta {
++        background: linear-gradient(135deg, #22c55e 0%, #6EE7B7 100%);
++        color: #fff;
++        border-radius: 18px;
++        padding: 24px;
++        text-align: center;
++        box-shadow: 0 12px 28px -8px rgba(34, 197, 94, 0.30);
++    }
++    .formation-cta h3 {
++        font-size: 1.1rem;
++        font-weight: 700;
++        margin-bottom: 14px;
++        color: #fff;
++    }
++    .formation-cta a.btn-cta {
++        display: block;
++        background: #fff;
++        color: #16a34a;
++        font-weight: 600;
++        padding: 10px 16px;
++        border-radius: 10px;
++        text-decoration: none;
++        margin-bottom: 10px;
++        transition: transform 0.2s ease;
++    }
++    .formation-cta a.btn-cta:hover {
++        transform: translateY(-2px);
++    }
++    .formation-cta a.btn-cta.outline {
++        background: transparent;
++        color: #fff;
++        border: 1.5px solid #fff;
++    }
++
++    @media (max-width: 768px) {
++        .formation-detail-hero {
++            padding: 36px 24px;
++        }
++        .formation-detail-hero h1 {
++            font-size: 1.7rem;
++        }
++    }
++</style>
++
++{{-- Breadcrumb --}}
++<nav class="formation-breadcrumb">
++    <a href="{{ route('formations.index') }}">Formations</a>
++    <span class="sep">›</span>
++    <a href="{{ route('formations.index', ['category' => $formation->category]) }}">
++        {{ $formation->category_label }}
++    </a>
++    <span class="sep">›</span>
++    <span class="current">{{ $formation->title }}</span>
++</nav>
++
++{{-- Hero --}}
++<header class="formation-detail-hero">
++    <span class="badge-cat">{{ $formation->category_label }}</span>
++    <h1>{{ $formation->title }}</h1>
++    <p class="hero-desc">{{ $formation->description }}</p>
++    <div class="hero-meta">
++        <span class="pill">
++            ⏱ Durée : {{ $formation->duree_annees }} an{{ $formation->duree_annees > 1 ? 's' : '' }}
++        </span>
++        @if($formation->type)
++            <span class="pill">🎓 {{ ucfirst($formation->type) }}</span>
++        @endif
++        <a href="{{ $formation->source_url }}" target="_blank" rel="noopener" class="pill">
++            🌐 Source officielle ENSA
++        </a>
++    </div>
++</header>
++
++<div class="formation-layout">
++    <div class="formation-main">
++        {{-- Objectifs --}}
++        @if(!empty($formation->objectifs))
++            <section class="formation-section">
++                <h2><span class="icon">🎯</span> Objectifs de la formation</h2>
++                <ul>
++                    @foreach($formation->objectifs as $obj)
++                        <li>{{ $obj }}</li>
++                    @endforeach
++                </ul>
++            </section>
++        @endif
++
++        {{-- Compétences --}}
++        @if(!empty($formation->competences))
++            <section class="formation-section">
++                <h2><span class="icon">🧠</span> Compétences à acquérir</h2>
++                @if(is_array(reset($formation->competences)))
++                    @foreach($formation->competences as $group => $items)
++                        <div class="skill-group">
++                            <h3>{{ $group }}</h3>
++                            <ul>
++                                @foreach($items as $item)
++                                    <li>{{ $item }}</li>
++                                @endforeach
++                            </ul>
++                        </div>
++                    @endforeach
++                @else
++                    <ul>
++                        @foreach($formation->competences as $comp)
++                            <li>{{ $comp }}</li>
++                        @endforeach
++                    </ul>
++                @endif
++            </section>
++        @endif
++
++        {{-- Programme --}}
++        @if(!empty($formation->programme))
++            <section class="formation-section">
++                <h2><span class="icon">📚</span> Contenu de la formation</h2>
++                @foreach($formation->programme as $semester => $modules)
++                    <div class="programme-accordion">
++                        <button class="programme-toggle" type="button"
++                                aria-expanded="false"
++                                onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true'); this.nextElementSibling.classList.toggle('open'); this.querySelector('.chev').style.transform = this.getAttribute('aria-expanded') === 'true' ? 'rotate(180deg)' : 'rotate(0deg)';">
++                            <span>{{ $semester }}</span>
++                            <svg class="chev" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
++                                <polyline points="6 9 12 15 18 9"></polyline>
++                            </svg>
++                        </button>
++                        <div class="programme-content">
++                            <ul>
++                                @foreach($modules as $module)
++                                    <li>{{ $module }}</li>
++                                @endforeach
++                            </ul>
++                        </div>
++                    </div>
++                @endforeach
++            </section>
++        @endif
++
++        {{-- Partenariats --}}
++        @if(!empty($formation->partenariats))
++            <section class="formation-section">
++                <h2><span class="icon">🤝</span> Double diplôme & Mobilité internationale</h2>
++                <ul>
++                    @foreach($formation->partenariats as $p)
++                        <li>{{ $p }}</li>
++                    @endforeach
++                </ul>
++            </section>
++        @endif
++    </div>
++
++    {{-- Sidebar --}}
++    <aside class="formation-sidebar">
++        {{-- Débouchés --}}
++        @if(!empty($formation->debouches))
++            <div class="formation-sidebar-card">
++                <h3>💼 Débouchés professionnels</h3>
++                @if(is_array(reset($formation->debouches)))
++                    @foreach($formation->debouches as $domain => $jobs)
++                        <div class="job-domain">{{ $domain }}</div>
++                        <ul class="jobs">
++                            @foreach($jobs as $job)
++                                <li>{{ $job }}</li>
++                            @endforeach
++                        </ul>
++                    @endforeach
++                @else
++                    <ul>
++                        @foreach($formation->debouches as $d)
++                            <li>🔹 {{ $d }}</li>
++                        @endforeach
++                    </ul>
++                @endif
++            </div>
++        @endif
++
++        {{-- Conditions d'accès --}}
++        @if(!empty($formation->acces))
++            <div class="formation-sidebar-card">
++                <h3>📋 Conditions d'accès</h3>
++                <ul class="access">
++                    @foreach($formation->acces as $a)
++                        <li>{{ $a }}</li>
++                    @endforeach
++                </ul>
++            </div>
++        @endif
++
++        {{-- CTA --}}
++        <div class="formation-cta">
++            <h3>Intéressé(e) par cette formation ?</h3>
++            <a href="https://ensa.uit.ac.ma/ensa-access/" target="_blank" rel="noopener" class="btn-cta">
++                📝 Conditions d'admission
++            </a>
++            <a href="https://ensa.uit.ac.ma/contact/" target="_blank" rel="noopener" class="btn-cta outline">
++                📧 Contacter l'ENSA
++            </a>
++        </div>
++    </aside>
++</div>
++
++{{-- Back link --}}
++<div style="margin-top: 32px;">
++    <a href="{{ route('formations.index') }}" class="back-link">
++        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
++            <line x1="19" y1="12" x2="5" y2="12"></line>
++            <polyline points="12 19 5 12 12 5"></polyline>
++        </svg>
++        Retour aux formations
++    </a>
++</div>
++
++@endsection
+diff --git a/resources/views/home.blade.php b/resources/views/home.blade.php
+index a885440..7e35d9c 100644
+--- a/resources/views/home.blade.php
++++ b/resources/views/home.blade.php
+@@ -330,7 +330,7 @@
+                     <h3 class="post-card-title">Réseaux et Systèmes de Télécommunications</h3>
+                     <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans les réseaux informatiques, les télécommunications, la cybersécurité et les infrastructures numériques modernes.</p>
+                     <div class="post-card-footer">
+-                        <a href="{{ route('majors.show', 'reseaux-et-systemes-de-telecommunications') }}" class="read-more-link">Découvrir la filière →</a>
++                        <a href="{{ route('formations.show', 'genie-reseaux-telecommunications') }}" class="read-more-link">Découvrir la filière →</a>
+                     </div>
+                 </div>
+             </article>
+@@ -430,7 +430,7 @@
+                     <h3 class="post-card-title">Génie Énergétique et Énergies Renouvelables</h3>
+                     <p class="post-card-excerpt">Cette filière forme des ingénieurs capables de concevoir des solutions d'énergie durable, d'améliorer l'efficacité énergétique et de gérer les ressources renouvelables.</p>
+                     <div class="post-card-footer">
+-                        <a href="{{ route('majors.show', 'genie-energetique-et-energies-renouvelables') }}" class="read-more-link">Découvrir la filière →</a>
++                        <a href="{{ route('formations.show', 'efficacite-energetique-batiment-intelligent') }}" class="read-more-link">Découvrir la filière →</a>
+                     </div>
+                 </div>
+             </article>
+diff --git a/resources/views/layouts/app.blade.php b/resources/views/layouts/app.blade.php
+index 4189aff..5248a9d 100644
+--- a/resources/views/layouts/app.blade.php
++++ b/resources/views/layouts/app.blade.php
+@@ -4,7 +4,7 @@
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+-    <title>@yield('title', 'EduPlatform') - Projet Universitaire</title>
++    <title>@yield('title', 'EduBlog') - ENSA Kénitra</title>
+     
+     <link rel="icon" href="{{ asset('images/logo1.png') }}" type="image/png">
+     <!-- Link to custom premium CSS -->
+@@ -21,6 +21,7 @@
+             
+             <nav class="nav-links">
+                 <a href="{{ url('/') }}" class="nav-link {{ Request::is('/') ? 'active' : '' }}">Accueil</a>
++                <a href="{{ route('formations.index') }}" class="nav-link {{ Request::is('formations') || Request::is('formations/*') ? 'active' : '' }}">Formations</a>
+                 <a href="{{ route('posts.index') }}" class="nav-link {{ Request::is('posts') || (Request::is('posts/*') && !Request::is('posts/create')) ? 'active' : '' }}">Ressources</a>
+                 <a href="{{ url('/clubs') }}" class="nav-link {{ Request::is('clubs') ? 'active' : '' }}">Clubs</a>
+                 @auth
+diff --git a/routes/web.php b/routes/web.php
+index b5eaca3..aa39f4a 100644
+--- a/routes/web.php
++++ b/routes/web.php
+@@ -9,6 +9,7 @@
+ use App\Http\Controllers\MyPostsController;
+ use App\Http\Controllers\RatingController;
+ use App\Http\Controllers\MajorController;
++use App\Http\Controllers\FormationController;
+ 
+ /*
+ |--------------------------------------------------------------------------
+@@ -19,6 +20,14 @@
+ // --- Public Routes ---
+ Route::get('/', [HomeController::class, 'index'])->name('home');
+ Route::get('posts', [PostController::class, 'index'])->name('posts.index');
++
++// Formations ENSA Kénitra (real data: program, skills, career paths, etc.)
++Route::prefix('formations')->name('formations.')->group(function () {
++    Route::get('/', [FormationController::class, 'index'])->name('index');
++    Route::get('/{slug}', [FormationController::class, 'show'])->name('show');
++});
++
++// Legacy: old /majors/{slug} route now redirects to the matching formation page
+ Route::get('majors/{slug}', [MajorController::class, 'show'])->name('majors.show');
+ 
+ // --- Guest Only Routes (Login / Register) ---
+-- 
+2.39.5
+

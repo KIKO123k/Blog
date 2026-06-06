@@ -9,17 +9,27 @@ class FormationController extends Controller
 {
     public function index(Request $request)
     {
-        $majors = Formation::all();
-        return view('majors.index', compact('majors'));
+        $category = $request->query('category');
+
+        $formations = Formation::when($category, fn($q) => $q->where('category', $category))
+            ->orderByRaw("FIELD(category, 'preparatoire', 'cycle_ingenieur', 'formation_continue', 'doctorat')")
+            ->orderBy('title')
+            ->get()
+            ->groupBy('category');
+
+        $categories = [
+            'preparatoire'       => 'Années Préparatoires',
+            'cycle_ingenieur'    => 'Cycle Ingénieur',
+            'formation_continue' => 'Formation Continue',
+            'doctorat'           => 'Cycle Doctoral',
+        ];
+
+        return view('formations.index', compact('formations', 'categories', 'category'));
     }
 
     public function show(string $slug)
     {
-        $major = Formation::where('slug', $slug)->firstOrFail();
-        $userRating = auth()->check() 
-            ? $major->ratings()->where('user_id', auth()->id())->first() 
-            : null;
-            
-        return view('majors.show', compact('major', 'userRating'));
+        $formation = Formation::where('slug', $slug)->firstOrFail();
+        return view('formations.show', compact('formation'));
     }
 }
