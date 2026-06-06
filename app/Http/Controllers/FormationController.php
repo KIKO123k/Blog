@@ -1,12 +1,13 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Formation;
+use Illuminate\Http\Request;
 
-class MajorController extends Controller
+class FormationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $majors = Formation::all();
         return view('majors.index', compact('majors'));
@@ -22,4 +23,3 @@ class MajorController extends Controller
         return view('majors.show', compact('major', 'userRating'));
     }
 }
-?>

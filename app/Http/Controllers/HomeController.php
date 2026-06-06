@@ -14,15 +14,15 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $recentPosts = Post::with('user')
-            ->orderBy('created_at', 'desc')
-            ->take(3)
-            ->get();
+        // Eager load 'user' pour éviter le problème N+1 dans la boucle des articles
+        $posts = Post::with('user')->latest()->take(3)->get();
 
         $postsCount = Post::count();
         $commentsCount = Comment::count();
-        $authorsCount = User::has('posts')->count();
+        $usersCount = User::has('posts')->count();
 
-        return view('home', compact('recentPosts', 'postsCount', 'commentsCount', 'authorsCount'));
+        $formations = \App\Models\Formation::where('category', 'cycle_ingenieur')->get();
+
+        return view('home', compact('posts', 'postsCount', 'commentsCount', 'usersCount', 'formations'));
     }
 }

@@ -9,6 +9,10 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MyPostsController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\MajorController;
+use App\Http\Controllers\MajorCommentController;
+use App\Http\Controllers\MajorRatingController;
+use App\Http\Controllers\MajorVideoController;
+use App\Http\Controllers\ClubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +23,16 @@ use App\Http\Controllers\MajorController;
 // --- Public Routes ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('posts', [PostController::class, 'index'])->name('posts.index');
-Route::get('majors/{slug}', [MajorController::class, 'show'])->name('majors.show');
+Route::get('/clubs', [ClubController::class, 'index'])->name('clubs.index');
+
+// --- Majors Routes ---
+Route::get('/majors', [MajorController::class, 'index'])->name('majors.index');
+Route::get('/majors/{slug}', [MajorController::class, 'show'])->name('majors.show');
+Route::middleware('auth')->group(function () {
+    Route::post('/majors/{id}/comments', [MajorCommentController::class, 'store'])->name('majors.comments.store');
+    Route::post('/majors/{id}/rate', [MajorRatingController::class, 'store'])->name('majors.rate');
+    Route::post('/majors/{id}/video', [MajorVideoController::class, 'upload'])->name('majors.video.upload');
+});
 
 // --- Guest Only Routes (Login / Register) ---
 Route::middleware('guest')->group(function () {
@@ -59,3 +72,11 @@ Route::get('cookies', fn() => view('cookies'))->name('cookies');
 // --- Comments Route ---
 Route::post('posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
 Route::post('posts/{post}/rating', [RatingController::class, 'store'])->name('ratings.store');
+
+
+use App\Http\Controllers\FormationController;
+
+Route::prefix('formations')->name('formations.')->group(function () {
+    Route::get('/',       [FormationController::class, 'index'])->name('index');
+    Route::get('/{slug}', [FormationController::class, 'show'])->name('show');
+});

@@ -260,7 +260,7 @@
         </div>
 
         <div class="posts-grid">
-            @forelse($recentPosts as $post)
+            @forelse($posts as $post)
                 <article class="post-card glass">
                     <div class="post-card-image">
                         @if($post->image)
@@ -314,126 +314,40 @@
             </div>
         </div>
         <div class="posts-grid">
-            <!-- Card 1 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_telecom.png') }}" alt="Réseaux et Systèmes de Télécommunications">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
+            @php
+                $imageMap = [
+                    'genie-reseaux-telecommunications' => 'major_telecom.png',
+                    'genie-informatique' => 'major_informatique.png',
+                    'genie-industriel' => 'major_industriel.png',
+                    'genie-electrique' => 'major_electrique.png',
+                    'genie-mecatronique' => 'major_mechatronique.png',
+                    'efficacite-energetique-batiment-intelligent' => 'major_energetique.png',
+                ];
+            @endphp
+            @foreach($formations as $formation)
+                <article class="post-card glass">
+                    <div class="post-card-image">
+                        @php
+                            $imageName = $imageMap[$formation->slug] ?? 'logo.png';
+                        @endphp
+                        <img src="{{ asset('images/' . $imageName) }}" alt="{{ $formation->title }}">
                     </div>
-                    <h3 class="post-card-title">Réseaux et Systèmes de Télécommunications</h3>
-                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans les réseaux informatiques, les télécommunications, la cybersécurité et les infrastructures numériques modernes.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'reseaux-et-systemes-de-telecommunications') }}" class="read-more-link">Découvrir la filière →</a>
+                    <div class="post-card-content">
+                        <div class="post-card-meta">
+                            <span class="post-card-author">
+                                <span class="author-avatar">A</span>
+                                Administration ENSA Kénitra
+                            </span>
+                            <span>{{ now()->format('d/m/Y') }}</span>
+                        </div>
+                        <h3 class="post-card-title">{{ $formation->title }}</h3>
+                        <p class="post-card-excerpt">{{ Str::limit($formation->description, 150) }}</p>
+                        <div class="post-card-footer">
+                            <a href="{{ route('majors.show', $formation->slug) }}" class="read-more-link">Découvrir la filière →</a>
+                        </div>
                     </div>
-                </div>
-            </article>
-            <!-- Card 2 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_informatique.png') }}" alt="Génie Informatique">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
-                    </div>
-                    <h3 class="post-card-title">Génie Informatique</h3>
-                    <p class="post-card-excerpt">Cette filière forme des ingénieurs en informatique, spécialisés dans le développement logiciel, les algorithmes, les bases de données et les technologies émergentes.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'genie-informatique') }}" class="read-more-link">Découvrir la filière →</a>
-                    </div>
-                </div>
-            </article>
-            <!-- Card 3 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_industriel.png') }}" alt="Génie Industriel">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
-                    </div>
-                    <h3 class="post-card-title">Génie Industriel</h3>
-                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans l'optimisation de la production, la gestion de la chaîne d'approvisionnement, le contrôle qualité et l'automatisation industrielle.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'genie-industriel') }}" class="read-more-link">Découvrir la filière →</a>
-                    </div>
-                </div>
-            </article>
-            <!-- Card 4 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_electrique.png') }}" alt="Génie Électrique">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
-                    </div>
-                    <h3 class="post-card-title">Génie Électrique</h3>
-                    <p class="post-card-excerpt">Cette filière forme des ingénieurs spécialisés dans les systèmes électriques, l'électronique, les énergies renouvelables et la conception de systèmes embarqués.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'genie-electrique') }}" class="read-more-link">Découvrir la filière →</a>
-                    </div>
-                </div>
-            </article>
-            <!-- Card 5 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_mechatronique.png') }}" alt="Génie Mécatronique">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
-                    </div>
-                    <h3 class="post-card-title">Génie Mécatronique</h3>
-                    <p class="post-card-excerpt">Cette filière combine mécanique, électronique et informatique pour créer des machines intelligentes et des solutions d'automatisation.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'genie-mecatronique') }}" class="read-more-link">Découvrir la filière →</a>
-                    </div>
-                </div>
-            </article>
-            <!-- Card 6 -->
-            <article class="post-card glass">
-                <div class="post-card-image">
-                    <img src="{{ asset('images/major_energetique.png') }}" alt="Génie Énergétique et Énergies Renouvelables">
-                </div>
-                <div class="post-card-content">
-                    <div class="post-card-meta">
-                        <span class="post-card-author">
-                            <span class="author-avatar">A</span>
-                            Administration ENSA Kénitra
-                        </span>
-                        <span>{{ now()->format('d/m/Y') }}</span>
-                    </div>
-                    <h3 class="post-card-title">Génie Énergétique et Énergies Renouvelables</h3>
-                    <p class="post-card-excerpt">Cette filière forme des ingénieurs capables de concevoir des solutions d'énergie durable, d'améliorer l'efficacité énergétique et de gérer les ressources renouvelables.</p>
-                    <div class="post-card-footer">
-                        <a href="{{ route('majors.show', 'genie-energetique-et-energies-renouvelables') }}" class="read-more-link">Découvrir la filière →</a>
-                    </div>
-                </div>
-            </article>
+                </article>
+            @endforeach
         </div>
     </section>
 
@@ -449,7 +363,7 @@
                 <span class="stat-label">Commentaires</span>
             </div>
             <div class="stat-card glass">
-                <span class="stat-value">{{ $authorsCount }}</span>
+                <span class="stat-value">{{ $usersCount }}</span>
                 <span class="stat-label">Auteurs Actifs</span>
             </div>
         </div>
