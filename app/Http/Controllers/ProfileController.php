@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
@@ -19,15 +20,10 @@ class ProfileController extends Controller
     /**
      * Update the authenticated user's profile.
      */
-    public function update(Request $request)
+    public function update(ProfileUpdateRequest $request)
     {
         $user = auth()->user();
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-        ]);
+        $validated = $request->validated();
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
