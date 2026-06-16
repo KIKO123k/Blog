@@ -2,14 +2,14 @@
   "version": 1,
   "created_at": "2026-06-05T16:26:08.079Z",
   "lifetime": {
-    "total_tokens_estimated": 1880388,
-    "total_reads": 343,
-    "total_writes": 992,
-    "total_sessions": 22,
-    "anatomy_hits": 238,
-    "anatomy_misses": 105,
-    "repeated_reads_blocked": 103,
-    "estimated_savings_vs_bare_cli": 860930
+    "total_tokens_estimated": 1961206,
+    "total_reads": 360,
+    "total_writes": 1058,
+    "total_sessions": 24,
+    "anatomy_hits": 248,
+    "anatomy_misses": 112,
+    "repeated_reads_blocked": 111,
+    "estimated_savings_vs_bare_cli": 942610
   },
   "sessions": [
     {
@@ -7980,6 +7980,472 @@
         "writes_count": 30,
         "repeated_reads_blocked": 4,
         "anatomy_lookups": 4
+      }
+    },
+    {
+      "id": "session-2026-06-16-2054",
+      "started": "2026-06-16T19:54:55.868Z",
+      "ended": "2026-06-16T21:03:47.694Z",
+      "reads": [
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/migrations/2026_06_16_195637_create_ecosystem_tables.php",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Middleware/IsAdmin.php",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/admin/recruiters.blade.php",
+          "tokens_estimated": 3388,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 9960,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/layouts/app.blade.php",
+          "tokens_estimated": 7276,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 178,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 3714,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/migrations/2026_06_16_195637_create_ecosystem_tables.php",
+          "tokens_estimated": 660,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/LostFoundItem.php",
+          "tokens_estimated": 114,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/TeamPost.php",
+          "tokens_estimated": 146,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/JobOffer.php",
+          "tokens_estimated": 97,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Controllers/EcosystemController.php",
+          "tokens_estimated": 1882,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/User.php",
+          "tokens_estimated": 144,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 358,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/ai-space.blade.php",
+          "tokens_estimated": 1684,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/find-teammates.blade.php",
+          "tokens_estimated": 2430,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/lost-found.blade.php",
+          "tokens_estimated": 2496,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/career-center.blade.php",
+          "tokens_estimated": 2572,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/EcosystemSeeder.php",
+          "tokens_estimated": 1242,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/DatabaseSeeder.php",
+          "tokens_estimated": 43,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Middleware/IsAdmin.php",
+          "tokens_estimated": 166,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/DatabaseSeeder.php",
+          "tokens_estimated": 23,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/admin/recruiters.blade.php",
+          "tokens_estimated": 76,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 107,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 37,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 80,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 42,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/layouts/app.blade.php",
+          "tokens_estimated": 32,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 89,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 28,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 28,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 29,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 78,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/vendor/pagination/custom.blade.php",
+          "tokens_estimated": 483,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 318,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 150,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 162,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 24516,
+        "output_tokens_estimated": 15893,
+        "reads_count": 8,
+        "writes_count": 33,
+        "repeated_reads_blocked": 4,
+        "anatomy_lookups": 5
+      }
+    },
+    {
+      "id": "session-2026-06-16-2054",
+      "started": "2026-06-16T19:54:55.868Z",
+      "ended": "2026-06-16T21:08:26.333Z",
+      "reads": [
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/migrations/2026_06_16_195637_create_ecosystem_tables.php",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Middleware/IsAdmin.php",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/admin/recruiters.blade.php",
+          "tokens_estimated": 3388,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 9960,
+          "was_repeated": true,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/layouts/app.blade.php",
+          "tokens_estimated": 7276,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 178,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 3714,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/services/api.ts",
+          "tokens_estimated": 0,
+          "was_repeated": false,
+          "anatomy_had_description": false
+        }
+      ],
+      "writes": [
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/migrations/2026_06_16_195637_create_ecosystem_tables.php",
+          "tokens_estimated": 660,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/LostFoundItem.php",
+          "tokens_estimated": 114,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/TeamPost.php",
+          "tokens_estimated": 146,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/JobOffer.php",
+          "tokens_estimated": 97,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Controllers/EcosystemController.php",
+          "tokens_estimated": 1882,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Models/User.php",
+          "tokens_estimated": 144,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 358,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/ai-space.blade.php",
+          "tokens_estimated": 1684,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/find-teammates.blade.php",
+          "tokens_estimated": 2430,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/lost-found.blade.php",
+          "tokens_estimated": 2496,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/ecosystem/career-center.blade.php",
+          "tokens_estimated": 2572,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/EcosystemSeeder.php",
+          "tokens_estimated": 1242,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/DatabaseSeeder.php",
+          "tokens_estimated": 43,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Http/Middleware/IsAdmin.php",
+          "tokens_estimated": 166,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/database/seeders/DatabaseSeeder.php",
+          "tokens_estimated": 23,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/admin/recruiters.blade.php",
+          "tokens_estimated": 76,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 107,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 45,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 37,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 80,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 42,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/layouts/app.blade.php",
+          "tokens_estimated": 32,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 89,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 28,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 28,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 29,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/app/Providers/AppServiceProvider.php",
+          "tokens_estimated": 78,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/resources/views/vendor/pagination/custom.blade.php",
+          "tokens_estimated": 483,
+          "action": "create"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/public/css/style.css",
+          "tokens_estimated": 318,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 26,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/frontend/src/App.tsx",
+          "tokens_estimated": 150,
+          "action": "edit"
+        },
+        {
+          "file": "C:/Users/HP/OneDrive/Documentos/laravelprojet/blog/routes/web.php",
+          "tokens_estimated": 162,
+          "action": "edit"
+        }
+      ],
+      "totals": {
+        "input_tokens_estimated": 24516,
+        "output_tokens_estimated": 15893,
+        "reads_count": 9,
+        "writes_count": 33,
+        "repeated_reads_blocked": 4,
+        "anatomy_lookups": 5
       }
     }
   ],

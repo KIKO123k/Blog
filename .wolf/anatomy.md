@@ -1,7 +1,7 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-06-16T20:51:58.162Z
-> Files: 600 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-06-16T21:02:05.900Z
+> Files: 601 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
@@ -173,6 +173,10 @@
 - `FooterLinkSeeder.php` — Run the database seeds. (~321 tok)
 - `MajorSeeder.php` — MajorSeeder: run (~3748 tok)
 
+## frontend/src/
+
+- `App.tsx` — NavigationHeader (~1375 tok)
+
 ## public/
 
 - `.htaccess` — Apache configuration (~198 tok)
@@ -304,7 +308,7 @@
 
 - `console.php` (~56 tok)
 - `index.blade.php` — Blade: extends layouts.app, sections: title, content (~414 tok)
-- `web.php` (~3714 tok)
+- `web.php` (~3532 tok)
 
 ## storage/app/
 

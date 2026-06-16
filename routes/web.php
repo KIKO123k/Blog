@@ -225,17 +225,12 @@ Route::prefix('formations')->name('formations.')->group(function () {
     Route::get('/{slug}', [FormationController::class, 'show'])->name('show');
 });
 
-// --- Écosystème étudiant (pages Laravel natives) ---
-Route::get('/ecosystem/ai-space',        [EcosystemController::class, 'aiSpace'])->name('ecosystem.ai');
-Route::get('/ecosystem/find-teammates',  [EcosystemController::class, 'findTeammates'])->name('ecosystem.teammates');
-Route::get('/ecosystem/lost-found',      [EcosystemController::class, 'lostFound'])->name('ecosystem.lostfound');
-Route::get('/ecosystem/career-center',   [EcosystemController::class, 'careerCenter'])->name('ecosystem.career');
-
-Route::middleware('auth')->group(function () {
-    Route::post('/ecosystem/find-teammates',          [EcosystemController::class, 'storeTeamPost'])->name('ecosystem.teammates.store');
-    Route::post('/ecosystem/team-posts/{teamPost}/close', [EcosystemController::class, 'closeTeamPost'])->name('ecosystem.teammates.close');
-    Route::post('/ecosystem/lost-found',              [EcosystemController::class, 'storeLostFound'])->name('ecosystem.lostfound.store');
-    Route::post('/ecosystem/lost-found/{item}/resolve', [EcosystemController::class, 'resolveLostFound'])->name('ecosystem.lostfound.resolve');
-    Route::post('/ecosystem/career-center',           [EcosystemController::class, 'storeJobOffer'])->name('ecosystem.career.store');
-});
+// --- Écosystème étudiant : application React (SPA) servie par Laravel ---
+// Toutes les URL /ecosystem/* renvoient l'app React buildée ; React Router
+// gère ensuite ai-space, find-teammates, lost-found, career-center côté client.
+Route::get('/ecosystem/{any?}', function () {
+    $path = public_path('ecosystem/index.html');
+    abort_unless(file_exists($path), 404, 'App écosystème non buildée. Lancez "npm run build" dans frontend/.');
+    return response(file_get_contents($path))->header('Content-Type', 'text/html');
+})->where('any', '.*')->name('ecosystem');
 

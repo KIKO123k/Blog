@@ -1137,6 +1137,22 @@
       "related_bugs": [],
       "occurrences": 1,
       "last_seen": "2026-06-16T20:51:58.269Z"
+    },
+    {
+      "id": "bug-072",
+      "timestamp": "2026-06-16T21:02:05.946Z",
+      "error_message": "Significant refactor of ",
+      "file": "routes/web.php",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 13→8 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T21:02:05.946Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Sparkles, Code, ShieldAlert, Briefcase, GraduationCap } from 'lucide-react';
+import { Sparkles, Code, ShieldAlert, Briefcase, GraduationCap, Home } from 'lucide-react';
 import { AISpace } from './pages/AISpace';
 import { TeamFinder } from './pages/TeamFinder';
 import { LostFound } from './pages/LostFound';
@@ -32,6 +32,14 @@ const NavigationHeader: React.FC = () => {
 
         {/* Center menu links */}
         <nav className="flex flex-wrap items-center justify-center gap-1 sm:gap-2">
+          {/* Retour au site Laravel (navigation pleine page, hors SPA) */}
+          <a
+            href="/"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-900/5 hover:text-slate-800 transition-all duration-200"
+          >
+            <Home size={14} className="text-slate-400" />
+            <span>Accueil</span>
+          </a>
           {navItems.map(item => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path;
