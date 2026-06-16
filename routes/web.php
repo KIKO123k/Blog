@@ -15,6 +15,23 @@ use App\Http\Controllers\MajorVideoController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\FormationController;
+use App\Http\Controllers\StudentPortfolioController;
+use App\Http\Controllers\FriendshipController;
+use App\Http\Controllers\Admin\RecruiterController;
+use App\Http\Controllers\ParcoursController;
+use App\Http\Controllers\TalentController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\RepostController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\EcosystemController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\DashboardController as StudentDashboardController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\PostManagementController;
+use App\Http\Controllers\Admin\CategoryManagementController;
+use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\MajorManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,10 +42,16 @@ use App\Http\Controllers\FormationController;
 // --- Public Routes ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('posts', [PostController::class, 'index'])->name('posts.index');
+Route::get('/search', [SearchController::class, 'index'])->name('search');
 Route::get('/clubs', [ClubController::class, 'index'])->name('clubs.index');
+Route::get('/clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
 
 // --- Public Category Filter ---
 Route::get('categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+
+// --- Offre de formation complète (prépa, master, doctorat, double diplôme, mobilité, partenaires) ---
+Route::get('/parcours', [ParcoursController::class, 'index'])->name('parcours.index');
+Route::get('/parcours/{slug}', [ParcoursController::class, 'show'])->name('parcours.show');
 
 // --- Majors Routes ---
 Route::get('/majors', [MajorController::class, 'index'])->name('majors.index');
@@ -64,6 +87,9 @@ Route::middleware('auth')->group(function () {
     Route::put('posts/{post}', [PostController::class, 'update'])->name('posts.update');
     Route::delete('posts/{post}', [PostController::class, 'destroy'])->name('posts.destroy');
 
+    // Tableau de bord personnel
+    Route::get('tableau-de-bord', [StudentDashboardController::class, 'index'])->name('dashboard');
+
     // My Articles page
     Route::get('my-articles', [MyPostsController::class, 'index'])->name('my-articles');
 
@@ -77,6 +103,106 @@ Route::middleware('auth')->group(function () {
 
 // Original post detail route (uses slug via Post model's getRouteKeyName)
 Route::get('posts/{post}', [PostController::class, 'show'])->name('posts.show');
+
+// --- Annuaire des talents (recruteurs vérifiés) ---
+Route::get('/talents', [TalentController::class, 'index'])->middleware('auth')->name('talents.index');
+
+// --- Événements & agenda des clubs ---
+Route::get('/events', [EventController::class, 'index'])->name('events.index');
+Route::post('/events/{event}/rsvp', [EventController::class, 'toggleRsvp'])->middleware('auth')->name('events.rsvp');
+
+// --- Student Portfolios ---
+Route::get('/students/{user}/cv.pdf', [StudentPortfolioController::class, 'pdf'])->name('portfolio.pdf');
+Route::get('/students/{user}', [StudentPortfolioController::class, 'show'])->name('portfolio.show');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/portfolio/edit',                    [StudentPortfolioController::class, 'edit'])->name('portfolio.edit');
+    Route::put('/portfolio/edit',                    [StudentPortfolioController::class, 'update'])->name('portfolio.update');
+    Route::post('/portfolio/projects',               [StudentPortfolioController::class, 'storeProject'])->name('portfolio.projects.store');
+    Route::delete('/portfolio/projects/{project}',   [StudentPortfolioController::class, 'destroyProject'])->name('portfolio.projects.destroy');
+    Route::post('/portfolio/internships',            [StudentPortfolioController::class, 'storeInternship'])->name('portfolio.internships.store');
+    Route::delete('/portfolio/internships/{internship}', [StudentPortfolioController::class, 'destroyInternship'])->name('portfolio.internships.destroy');
+});
+
+// --- Notifications ---
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}', [NotificationController::class, 'open'])->name('notifications.open');
+});
+
+// --- Partage d'article & repost portfolio ---
+Route::middleware('auth')->group(function () {
+    Route::post('/posts/{post}/repost',   [RepostController::class, 'toggle'])->name('posts.repost');
+    Route::get('/posts/{post}/partager',  [MessageController::class, 'shareForm'])->name('posts.share.form');
+    Route::post('/posts/{post}/partager', [MessageController::class, 'sharePost'])->name('posts.share');
+});
+
+// --- Messagerie privée ---
+Route::middleware('auth')->group(function () {
+    Route::get('/messages',            [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{user}',     [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{user}',    [MessageController::class, 'store'])->name('messages.store');
+});
+
+// --- Friends / Social ---
+Route::middleware('auth')->group(function () {
+    Route::get('/friends/requests',              [FriendshipController::class, 'requests'])->name('friends.requests');
+    Route::post('/friends/send/{user}',          [FriendshipController::class, 'send'])->name('friends.send');
+    Route::post('/friends/cancel/{user}',        [FriendshipController::class, 'cancel'])->name('friends.cancel');
+    Route::post('/friends/accept/{user}',        [FriendshipController::class, 'accept'])->name('friends.accept');
+    Route::post('/friends/reject/{user}',        [FriendshipController::class, 'reject'])->name('friends.reject');
+    Route::delete('/friends/unfriend/{user}',    [FriendshipController::class, 'unfriend'])->name('friends.unfriend');
+});
+
+// --- Admin Routes ---
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Recruiter Verification
+    Route::get('/recruteurs',                 [RecruiterController::class, 'index'])->name('recruiters');
+    Route::post('/recruteurs/{user}/approve', [RecruiterController::class, 'approve'])->name('recruiters.approve');
+    Route::post('/recruteurs/{user}/reject',  [RecruiterController::class, 'reject'])->name('recruiters.reject');
+    Route::get('/recruteurs/{user}/badge',    [RecruiterController::class, 'badge'])->name('recruiters.badge');
+
+    // Admin Post Management
+    Route::get('/posts', [PostManagementController::class, 'index'])->name('posts.index');
+    Route::delete('/posts/{post}', [PostManagementController::class, 'destroy'])->name('posts.destroy');
+
+    // Admin Category Management
+    Route::get('/categories', [CategoryManagementController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryManagementController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [CategoryManagementController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryManagementController::class, 'destroy'])->name('categories.destroy');
+
+    // Admin User Management
+    Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
+    Route::put('/users/{user}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
+    Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+
+    // Admin Major Management
+    Route::resource('majors', MajorManagementController::class);
+});
+
+// --- Secure file delivery (private disk, authorization enforced) ---
+Route::middleware('auth')->group(function () {
+    Route::get('/files/cv/{user}',            [App\Http\Controllers\SecureFileController::class, 'cv'])->name('files.cv');
+    Route::get('/files/report/{internship}',  [App\Http\Controllers\SecureFileController::class, 'report'])->name('files.report');
+});
+
+// --- Email verification ---
+Route::middleware('auth')->group(function () {
+    Route::get('/email/verify', fn () => view('auth.verify-email'))->name('verification.notice');
+
+    Route::get('/email/verify/{id}/{hash}', function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect('/')->with('success', 'Votre adresse e-mail a été vérifiée avec succès !');
+    })->middleware('signed')->name('verification.verify');
+
+    Route::post('/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $request->user()->sendEmailVerificationNotification();
+        return back()->with('success', 'Un nouveau lien de vérification vous a été envoyé.');
+    })->middleware('throttle:6,1')->name('verification.send');
+});
 
 // Static pages (required for seeders)
 Route::get('cookies', fn() => view('cookies'))->name('cookies');
@@ -98,3 +224,18 @@ Route::prefix('formations')->name('formations.')->group(function () {
     Route::get('/',       [FormationController::class, 'index'])->name('index');
     Route::get('/{slug}', [FormationController::class, 'show'])->name('show');
 });
+
+// --- Écosystème étudiant (pages Laravel natives) ---
+Route::get('/ecosystem/ai-space',        [EcosystemController::class, 'aiSpace'])->name('ecosystem.ai');
+Route::get('/ecosystem/find-teammates',  [EcosystemController::class, 'findTeammates'])->name('ecosystem.teammates');
+Route::get('/ecosystem/lost-found',      [EcosystemController::class, 'lostFound'])->name('ecosystem.lostfound');
+Route::get('/ecosystem/career-center',   [EcosystemController::class, 'careerCenter'])->name('ecosystem.career');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/ecosystem/find-teammates',          [EcosystemController::class, 'storeTeamPost'])->name('ecosystem.teammates.store');
+    Route::post('/ecosystem/team-posts/{teamPost}/close', [EcosystemController::class, 'closeTeamPost'])->name('ecosystem.teammates.close');
+    Route::post('/ecosystem/lost-found',              [EcosystemController::class, 'storeLostFound'])->name('ecosystem.lostfound.store');
+    Route::post('/ecosystem/lost-found/{item}/resolve', [EcosystemController::class, 'resolveLostFound'])->name('ecosystem.lostfound.resolve');
+    Route::post('/ecosystem/career-center',           [EcosystemController::class, 'storeJobOffer'])->name('ecosystem.career.store');
+});
+

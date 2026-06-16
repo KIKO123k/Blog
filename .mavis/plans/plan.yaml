@@ -1,0 +1,515 @@
+﻿version: 1
+plan:
+  name: 'Blog Laravel Enhancement Suite'
+  max_concurrency: 3
+  max_consecutive_failures: 2
+  max_cycles: 20
+  auto_reject_retries: 2
+tasks:
+  # === FOUNDATION (Phase 1 - runs first) ===
+  - id: foundation-redis-caching
+    title: 'Install and configure Redis caching'
+    prompt: |
+      Install predis/predis package via Composer. Configure Laravel to use Redis for cache and session in .env (CACHE_DRIVER=redis, REDIS_* settings). Create cache repositories for Posts and Formations with TTL. Add cache tags for better invalidation. Test that cache works.
+      
+      Files to create/modify:
+      - composer.json (add predis/predis)
+      - .env (update CACHE_DRIVER and Redis settings)
+      - app/Services/CacheService.php (new)
+      - app/Repositories/PostRepository.php (add caching)
+      - config/database.php (ensure Redis config exists)
+      
+      Commit the work and report commit hash.
+    assigned_to: coder
+    verified_by: verifier
+    verify_prompt: 'Verify Redis package is in composer.lock, .env has Redis config, and a simple cache::put test passes. Run: php artisan tinker --execute="Cache::put(\"test\", 1, 60); echo Cache::get(\"test\");"'
+    timeout_ms: 1200000
+
+  - id: foundation-rate-limiting
+    title: 'Enhance rate limiting middleware'
+    prompt: |
+      Improve rate limiting across the app:
+      1. Add global API rate limit (60 requests/minute for API routes)
+      2. Add stricter limits for auth routes (5 attempts/minute already exists, extend to forgot-password)
+      3. Add per-user rate limits for comments (10/hour) and ratings (20/hour)
+      4. Add search rate limit (30 requests/minute)
+      
+      Files to modify:
+      - app/Providers/AppServiceProvider.php (add rate limiters)
+      - routes/web.php (apply rate limiters)
+      - Create routes/api.php with API-specific rate limits
+      - app/Http/Middleware/RateLimiter.php (enhance if needed)
+      
+      Commit and report.
+    assigned_to: coder
+    depends_on: [foundation-redis-caching]
+    verified_by: verifier
+    verify_prompt: 'Check routes/api.php exists with rate limiting, verify AppServiceProvider has all rate limiter definitions. Run: php artisan route:list --path=api'
+    timeout_ms: 1200000
+
+  - id: foundation-validation
+    title: 'Create request validation classes'
+    prompt: |
+      Create Form Request classes for all controllers. Extract validation logic from controllers into proper request classes.
+      
+      Create these files:
+      - app/Http/Requests/StorePostRequest.php
+      - app/Http/Requests/UpdatePostRequest.php
+      - app/Http/Requests/StoreCommentRequest.php
+      - app/Http/Requests/StoreMajorCommentRequest.php
+      - app/Http/Requests/RegisterRequest.php
+      - app/Http/Requests/LoginRequest.php
+      - app/Http/Requests/ProfileUpdateRequest.php
+      
+      Each should have proper rules, custom messages, and attributes. Update controllers to use these request classes.
+      
+      Commit and report.
+    assigned_to: coder
+    depends_on: [foundation-redis-caching]
+    verified_by: verifier
+    verify_prompt: 'Verify all Form Request files exist with proper validation rules. Check controllers use these requests via constructor injection.'
+    timeout_ms: 1200000
+
+  # === API + SEARCH (Phase 2) ===
+  - id: feature-api-routes
+    title: 'Create REST API routes and controllers'
+    prompt: |
+      Create a RESTful API for the blog:
+      
+      Create routes/api.php with:
+      - GET /api/posts (index with pagination)
+      - GET /api/posts/{slug} (show)
+      - POST /api/posts (create - auth required)
+      - PUT /api/posts/{slug} (update - owner only)
+      - DELETE /api/posts/{slug} (delete - owner only)
+      - GET /api/majors (index)
+      - GET /api/majors/{slug} (show)
+      - GET /api/formations (index)
+      - GET /api/formations/{slug} (show)
+      - GET /api/categories (index)
+      
+      Create:
+      - app/Http/Controllers/Api/PostApiController.php
+      - app/Http/Controllers/Api/MajorApiController.php
+      - app/Http/Controllers/Api/FormationApiController.php
+      - app/Http/Controllers/Api/CategoryApiController.php
+      
+      All responses should be JSON with proper status codes. Use API resources for transformations.
+      
+      Commit and report.
+    assigned_to: coder
+    depends_on: [foundation-rate-limiting, foundation-validation]
+    verified_by: verifier
+    verify_prompt: 'Verify api.php routes exist and controllers handle JSON responses. Run: php artisan route:list --path=api'
+    timeout_ms: 1200000
+
+  - id: feature-search
+    title: 'Implement full-text search functionality'
+    prompt: |
+      Add comprehensive search to the blog:
+      
+      1. Create a search index using Laravel Scout or manual database search
+      2. Add search endpoint: GET /api/search?q=query&type=posts|majors|formations
+      3. Add UI search box in the header (Blade component)
+      4. Search should filter by: title, content, tags
+      
+      Create:
+      - app/Http/Controllers/SearchController.php
+      - app/Models/Traits/Searchable.php
+      - resources/views/components/search-box.blade.php
+      - database/migrations for search optimization (indexes)
+      
+      Files to modify:
+      - routes/web.php (add search route)
+      - resources/views/layouts/app.blade.php (add search box)
+      
+      Commit and report.
+    assigned_to: coder
+    depends_on: [feature-api-routes]
+    verified_by: verifier
+    verify_prompt: 'Verify search endpoint exists, UI has search box, and basic search returns results. Test with: php artisan tinker --execute="echo App\\Models\\Post::search(\"test\")->count();"'
+    timeout_ms: 1200000
+
+  # === PERMISSIONS (Phase 2) ===
+  - id: feature-roles-permissions
+    title: 'Implement user roles and permissions system'
+    prompt: |
+      Create a role-based permission system:
+      
+      1. Add roles to users table: role (enum: user, author, admin)
+      2. Create roles table and role_user pivot table
+      3. Create middleware: IsAdmin, IsAuthor
+      4. Create Permission enum and Gates
+      
+      Create:
+      - database/migrations/*_create_roles_table.php
+      - app/Models/Role.php
+      - app/Models/Permission.php
+      - app/Enums/UserRole.php
+      - app/Http/Middleware/IsAdmin.php
+      - app/Http/Middleware/IsAuthor.php
+      - app/Policies/* (PostPolicy, MajorPolicy, etc.)
+      - database/seeders/RoleSeeder.php
+      
+      Update:
+      - User model (add role relationship, hasRole method)
+      - bootstrap/app.php (register middleware aliases)
+      - existing controllers (add authorization checks)
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [foundation-validation]
+    verified_by: verifier
+    verify_prompt: 'Verify roles table exists, User model has role, middleware is registered. Check that admin routes are protected with IsAdmin middleware.'
+    timeout_ms: 1200000
+
+  # === PAGINATION (Phase 2 - runs with permissions) ===
+  - id: feature-pagination
+    title: 'Implement pagination everywhere'
+    prompt: |
+      Add pagination to all listing pages:
+      
+      1. Posts index: paginate(10)
+      2. Majors index: paginate(12)
+      3. Formations index: paginate(15)
+      4. My Articles: paginate(15)
+      5. Comments: paginate(20)
+      
+      Create pagination Blade components with proper styling.
+      
+      Files to modify:
+      - app/Http/Controllers/PostController.php
+      - app/Http/Controllers/MajorController.php
+      - app/Http/Controllers/FormationController.php
+      - app/Http/Controllers/MyPostsController.php
+      - app/Http/Controllers/CommentController.php
+      - resources/views/posts/index.blade.php
+      - resources/views/majors/index.blade.php
+      - resources/views/formations/index.blade.php
+      - resources/views/components/pagination.blade.php
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [feature-roles-permissions]
+    verified_by: verifier
+    verify_prompt: 'Check all index pages have paginate() calls, pagination components render properly. Verify page parameter works in URLs.'
+    timeout_ms: 1200000
+
+  # === ADMIN DASHBOARD (Phase 3) ===
+  - id: feature-admin-dashboard
+    title: 'Build admin dashboard'
+    prompt: |
+      Create a complete admin panel:
+      
+      1. Admin layout: resources/views/admin/layout.blade.php
+      2. Admin dashboard home: resources/views/admin/dashboard.blade.php
+      3. Admin navigation menu
+      
+      Admin sections:
+      - Posts management (list, edit, delete, approve)
+      - Users management (list, change role, ban)
+      - Categories management (CRUD)
+      - Comments moderation (approve, delete spam)
+      - Analytics (post views, user stats)
+      
+      Create:
+      - app/Http/Controllers/Admin/DashboardController.php
+      - app/Http/Controllers/Admin/PostManagementController.php
+      - app/Http/Controllers/Admin/UserManagementController.php
+      - app/Http/Controllers/Admin/CategoryManagementController.php
+      - resources/views/admin/dashboard.blade.php
+      - resources/views/admin/posts/*.blade.php
+      - resources/views/admin/users/*.blade.php
+      - resources/views/admin/categories/*.blade.php
+      
+      Routes (all under /admin, protected by IsAdmin):
+      - GET /admin
+      - GET /admin/posts
+      - PUT /admin/posts/{id}/approve
+      - DELETE /admin/posts/{id}
+      - GET /admin/users
+      - PUT /admin/users/{id}/role
+      - GET /admin/categories
+      - POST /admin/categories
+      - PUT /admin/categories/{id}
+      - DELETE /admin/categories/{id}
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [feature-roles-permissions, feature-pagination]
+    verified_by: verifier
+    verify_prompt: 'Verify all admin routes exist, admin views render, middleware protects all routes. Run: php artisan route:list --path=admin'
+    timeout_ms: 1800000
+
+  # === ACTIVITY LOG (Phase 3) ===
+  - id: feature-activity-log
+    title: 'Implement activity log system'
+    prompt: |
+      Create a comprehensive activity log:
+      
+      1. Create activity_logs table with: user_id, action, model_type, model_id, properties (JSON), ip, created_at
+      2. Create ActivityLog model and ActivityLoggable trait
+      3. Log these events:
+         - User login/logout
+         - Post created/updated/deleted
+         - Comment added
+         - Profile updated
+         - Role changed (admin only)
+      
+      Create:
+      - database/migrations/*_create_activity_logs_table.php
+      - app/Models/ActivityLog.php
+      - app/Traits/LogsActivity.php
+      - app/Models/Concerns/Activityable.php
+      
+      Modify:
+      - AuthController.php (log login/logout)
+      - PostController.php (log post actions)
+      - CommentController.php (log comments)
+      - ProfileController.php (log profile updates)
+      
+      Create admin view to see activity logs:
+      - resources/views/admin/activity-logs.blade.php
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [feature-admin-dashboard]
+    verified_by: verifier
+    verify_prompt: 'Verify activity_logs table exists, models use activity trait, logs are being created for key actions. Check admin can view activity log.'
+    timeout_ms: 1200000
+
+  # === SEO + MEDIA (Phase 3) ===
+  - id: feature-seo
+    title: 'Implement SEO meta tags and sitemap'
+    prompt: |
+      Add comprehensive SEO:
+      
+      1. Create SEO View Component for meta tags
+      2. Add Open Graph tags (og:title, og:description, og:image)
+      3. Add Twitter card tags
+      4. Create sitemap.xml route
+      5. Add canonical URLs
+      
+      Create:
+      - app/View/Components/SeoMeta.php
+      - resources/views/components/seo-meta.blade.php
+      - app/Http/Controllers/SitemapController.php
+      - routes/web.php (add sitemap route)
+      - resources/views/sitemap.blade.php (XML template)
+      
+      Modify views to include SEO component:
+      - resources/views/layouts/app.blade.php
+      - resources/views/posts/show.blade.php
+      - resources/views/majors/show.blade.php
+      - resources/views/formations/show.blade.php
+      
+      Create sitemap that includes:
+      - All posts (lastmod, changefreq, priority)
+      - All majors
+      - All formations
+      - All categories
+      
+      Commit and report.
+    assigned_to: verifier
+    depends_on: [feature-api-routes]
+    verified_by: general
+    verify_prompt: 'Verify sitemap.xml route works, SEO meta tags appear in page source, og:image and twitter:card tags present.'
+    timeout_ms: 1200000
+
+  - id: feature-image-optimization
+    title: 'Implement image optimization and thumbnails'
+    prompt: |
+      Add image processing:
+      
+      1. Install intervention/image package
+      2. Create image processing service
+      3. Add thumbnail generation for posts (300x200)
+      4. Add responsive image support
+      5. Add image compression on upload
+      
+      Create:
+      - app/Services/ImageService.php
+      - app/Http/Controllers/ImageController.php (for on-demand resizing)
+      - config/image.php
+      
+      Modify:
+      - PostController.php (process images on create/update)
+      - resources/views/posts/index.blade.php (use thumbnails)
+      - resources/views/layouts/app.blade.php (add picture srcset)
+      
+      Add middleware for on-demand image resizing:
+      - Route::get('images/{path}', [ImageController::class, 'resize'])
+      
+      Commit and report.
+    assigned_to: verifier
+    depends_on: [feature-admin-dashboard]
+    verified_by: general
+    verify_prompt: 'Verify intervention/image is in composer.json, ImageService exists, thumbnails are generated when post has image.'
+    timeout_ms: 1200000
+
+  # === NOTIFICATIONS + REAL-TIME (Phase 4) ===
+  - id: feature-notifications
+    title: 'Implement notification system'
+    prompt: |
+      Create a comprehensive notification system:
+      
+      1. Create notification types:
+         - NewComment: Someone commented on your post
+         - NewRating: Someone rated your post
+         - NewFollower: Someone followed you
+         - PostPublished: Your post was approved
+      
+      2. Create notifications table migration
+      3. Create Notification model
+      4. Add notification preferences to user settings
+      
+      Create:
+      - database/migrations/*_create_notifications_table.php (use Laravel's built-in)
+      - app/Notifications/NewComment.php
+      - app/Notifications/NewRating.php
+      - app/Notifications/PostApproved.php
+      - resources/views/notifications/index.blade.php
+      - resources/views/components/notification-dropdown.blade.php
+      
+      Modify:
+      - CommentController.php (send notification)
+      - RatingController.php (send notification)
+      - User model (add notification relation)
+      - bootstrap/app.php (add broadcasting config)
+      
+      Add notification routes:
+      - GET /notifications (index)
+      - GET /notifications/{id} (mark as read)
+      - POST /notifications/mark-all-read
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [feature-roles-permissions]
+    verified_by: verifier
+    verify_prompt: 'Verify notifications table exists, User has notifications relationship, notification views render. Test notification creation.'
+    timeout_ms: 1200000
+
+  - id: feature-realtime
+    title: 'Implement real-time features with Laravel Echo'
+    prompt: |
+      Add real-time functionality:
+      
+      1. Install Laravel Echo and Pusher JS
+      2. Configure broadcasting (Pusher)
+      3. Set up WebSocket authentication
+      4. Real-time comment updates
+      5. Real-time notification updates
+      
+      Create:
+      - config/broadcasting.php
+      - resources/js/echo.js
+      - app/Events/NewCommentPosted.php
+      - app/Events/NewNotification.php
+      
+      Modify:
+      - package.json (add laravel-echo, pusher-js)
+      - resources/js/app.js (initialize Echo)
+      - resources/views/posts/show.blade.php (real-time comments)
+      - resources/views/layouts/app.blade.php (real-time notifications)
+      - CommentController.php (broadcast event)
+      - NotificationJob.php (broadcast on new notification)
+      
+      Create channel authorization:
+      - routes/channels.php (private user channels)
+      
+      Add real-time indicator (online users, typing indicator for comments).
+      
+      Commit and report.
+    assigned_to: general
+    depends_on: [feature-notifications]
+    verified_by: verifier
+    verify_prompt: 'Verify Echo is initialized in app.js, broadcasting.php config exists, events are broadcastable. Check channels.php has proper authorization.'
+    timeout_ms: 1200000
+
+  # === TESTING (Phase 4 - runs last) ===
+  - id: test-comprehensive
+    title: 'Comprehensive test suite'
+    prompt: |
+      Create a complete test suite covering all features:
+      
+      Auth Tests (tests/Feature/AuthTest.php):
+      - test_user_can_register
+      - test_user_can_login
+      - test_user_can_logout
+      - test_login_validation
+      - test_registration_validation
+      - test_password_reset_flow
+      - test_rate_limiting_on_auth
+      
+      Post Tests (tests/Feature/PostTest.php):
+      - test_posts_index_paginated
+      - test_user_can_create_post
+      - test_user_can_edit_own_post
+      - test_user_cannot_edit_others_post
+      - test_user_can_delete_own_post
+      - test_post_show_displays_content
+      - test_post_search_works
+      
+      Major Tests (tests/Feature/MajorTest.php):
+      - test_majors_index_paginated
+      - test_major_show_displays_details
+      - test_user_can_add_comment_to_major
+      - test_user_can_rate_major
+      
+      API Tests (tests/Feature/ApiTest.php):
+      - test_api_posts_list
+      - test_api_post_show
+      - test_api_create_post_auth_required
+      - test_api_rate_limiting
+      - test_search_endpoint
+      
+      Permission Tests (tests/Feature/PermissionTest.php):
+      - test_admin_can_access_admin_panel
+      - test_regular_user_cannot_access_admin
+      - test_author_can_create_posts
+      - test_user_cannot_delete_others_posts
+      
+      Notification Tests (tests/Feature/NotificationTest.php):
+      - test_user_receives_notification_on_comment
+      - test_user_can_mark_notification_read
+      - test_notification_preferences_respected
+      
+      Run all tests and ensure 100% pass.
+      
+      Commit and report.
+    assigned_to: verifier
+    depends_on: [feature-api-routes, feature-roles-permissions, feature-notifications, feature-realtime]
+    verified_by: coder
+    verify_prompt: 'Run: php artisan test. All tests must pass. No skipped or failed tests allowed.'
+    timeout_ms: 1800000
+
+  # === FINAL INTEGRATION ===
+  - id: final-integration-check
+    title: 'Final integration and health check'
+    prompt: |
+      Run the full integration suite:
+      
+      1. php artisan config:clear
+      2. php artisan migrate:fresh --seed
+      3. php artisan test
+      4. Verify all routes work: php artisan route:list
+      5. Check database migrations are clean
+      6. Verify all new features work end-to-end
+      
+      Check:
+      - API returns proper JSON
+      - Admin dashboard loads
+      - Real-time events fire
+      - Notifications are created
+      - Activity logs are recorded
+      - SEO meta tags are present
+      - Pagination works
+      - Search returns results
+      - Rate limiting is enforced
+      
+      Report any issues found.
+    assigned_to: verifier
+    depends_on: [test-comprehensive]
+    verified_by: coder
+    verify_prompt: 'Run the full test suite and all feature checks. Must have zero failures.'
+    timeout_ms: 1200000

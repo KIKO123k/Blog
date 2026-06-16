@@ -1,4 +1,1142 @@
 {
   "version": 1,
-  "bugs": []
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-06-07T00:00:00Z",
+      "error_message": "JULES_REPORT.md was unrelated boilerplate (VS Code extension repo), confusing project context",
+      "file": "JULES_REPORT.md",
+      "root_cause": "File was left over from a different project / copy-paste",
+      "fix": "Deleted the file",
+      "tags": [
+        "cleanup",
+        "docs"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-07T00:00:00Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-06-07T00:00:00Z",
+      "error_message": "formations_integration.patch (83KB) was a stale patch file in repo root that had already been applied",
+      "file": "formations_integration.patch",
+      "root_cause": "Patch was applied but not cleaned up from the repo root",
+      "fix": "Deleted the file",
+      "tags": [
+        "cleanup",
+        "formations"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-07T00:00:00Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-06-07T12:00:00Z",
+      "error_message": "UrlGenerationException: Missing required parameter for Route posts.show on home page",
+      "file": "app/Models/Post.php",
+      "root_cause": "101 bulk-seeded posts had null slugs (Post::insert bypasses model events); route() needs slug when getRouteKeyName is slug",
+      "fix": "Added Post::backfillMissingSlugs(), ran backfill on DB, updated DatabaseSeeder to call backfill after bulk insert",
+      "tags": [
+        "slug",
+        "routing",
+        "seeder"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-07T12:00:00Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-06-10T20:28:16.266Z",
+      "error_message": "Wrong reference: Formation should be Major",
+      "file": "app/Http/Controllers/MajorRatingController.php",
+      "root_cause": "Used \"Formation\" instead of \"Major\"",
+      "fix": "Changed Formation → Major",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-10T20:28:20.889Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-06-10T20:28:26.597Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/Http/Controllers/MajorVideoController.php",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 9→13 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T20:28:26.597Z"
+    },
+    {
+      "id": "bug-006",
+      "timestamp": "2026-06-10T20:28:56.847Z",
+      "error_message": "Wrong return value",
+      "file": "app/Http/Controllers/ClubController.php",
+      "root_cause": "Was returning: $query->latest()->paginate(10);",
+      "fix": "Now returns: response()->json($query->latest()->paginate(10));",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T20:28:56.847Z"
+    },
+    {
+      "id": "bug-007",
+      "timestamp": "2026-06-10T20:50:12.121Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "Had ', '",
+      "fix": "Changed to ') }}\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T20:50:12.121Z"
+    },
+    {
+      "id": "bug-008",
+      "timestamp": "2026-06-10T21:01:49.195Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/clubs/index.blade.php",
+      "root_cause": "Had \"club-card\"",
+      "fix": "Changed to \"{{ route('",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:01:49.195Z"
+    },
+    {
+      "id": "bug-009",
+      "timestamp": "2026-06-10T21:05:24.867Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/clubs/show.blade.php",
+      "root_cause": "Had 'https://www.instagram.com/'",
+      "fix": "Changed to ' . basename(rtrim($club->instagram_url, '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:05:24.867Z"
+    },
+    {
+      "id": "bug-010",
+      "timestamp": "2026-06-10T21:05:30.469Z",
+      "error_message": "Incorrect value in code",
+      "file": "database/seeders/ClubSeeder.php",
+      "root_cause": "Had 'facebook_url'",
+      "fix": "Changed to 'https://fr.linkedin.com/school/ensakenitra/'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:05:30.469Z"
+    },
+    {
+      "id": "bug-011",
+      "timestamp": "2026-06-10T21:05:35.070Z",
+      "error_message": "Wrong reference: null should be https",
+      "file": "database/seeders/ClubSeeder.php",
+      "root_cause": "Used \"null\" instead of \"https\"",
+      "fix": "Changed null → https",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-06-10T21:05:49.694Z"
+    },
+    {
+      "id": "bug-012",
+      "timestamp": "2026-06-10T21:13:56.405Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "20 lines replaced/restructured",
+      "fix": "Rewrote 32→181 lines (20 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:13:56.405Z"
+    },
+    {
+      "id": "bug-013",
+      "timestamp": "2026-06-10T21:21:39.475Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/seeders/DatabaseSeeder.php",
+      "root_cause": "87 lines replaced/restructured",
+      "fix": "Rewrote 141→189 lines (87 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:21:39.475Z"
+    },
+    {
+      "id": "bug-014",
+      "timestamp": "2026-06-10T21:21:57.016Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/seeders/CategorySeeder.php",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 12→14 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:21:57.016Z"
+    },
+    {
+      "id": "bug-015",
+      "timestamp": "2026-06-10T21:27:56.126Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/seeders/DatabaseSeeder.php",
+      "root_cause": "16 lines replaced/restructured",
+      "fix": "Rewrote 23→26 lines (16 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:27:56.126Z"
+    },
+    {
+      "id": "bug-016",
+      "timestamp": "2026-06-10T21:49:58.180Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/Http/Requests/RegisterRequest.php",
+      "root_cause": "Had 'required|string|email|max:255|unique:users'",
+      "fix": "Changed to 'required'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:49:58.180Z"
+    },
+    {
+      "id": "bug-017",
+      "timestamp": "2026-06-10T21:53:21.876Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/posts/show.blade.php",
+      "root_cause": "12 lines replaced/restructured",
+      "fix": "Rewrote 18→180 lines (12 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:53:21.876Z"
+    },
+    {
+      "id": "bug-018",
+      "timestamp": "2026-06-10T21:57:57.633Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_10_215723_add_portfolio_fields_to_users_table.php",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 16→20 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:57:57.633Z"
+    },
+    {
+      "id": "bug-019",
+      "timestamp": "2026-06-10T21:58:36.584Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/Models/User.php",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 6→5 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T21:58:36.584Z"
+    },
+    {
+      "id": "bug-020",
+      "timestamp": "2026-06-10T22:04:42.860Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/posts/show.blade.php",
+      "root_cause": "Had 'Auteur anonyme'",
+      "fix": "Changed to \"{{ route('",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:04:42.860Z"
+    },
+    {
+      "id": "bug-021",
+      "timestamp": "2026-06-10T22:27:24.902Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_10_222706_add_phone_privacy_to_users_table.php",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 13→10 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:27:24.902Z"
+    },
+    {
+      "id": "bug-022",
+      "timestamp": "2026-06-10T22:30:23.970Z",
+      "error_message": "Null/undefined access in ",
+      "file": "resources/views/portfolio/edit.blade.php",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:30:23.970Z"
+    },
+    {
+      "id": "bug-023",
+      "timestamp": "2026-06-10T22:30:34.301Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/Http/Controllers/StudentPortfolioController.php",
+      "root_cause": "Had 'filiere'",
+      "fix": "Changed to 'phone_privacy'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:30:34.301Z"
+    },
+    {
+      "id": "bug-024",
+      "timestamp": "2026-06-10T22:30:51.391Z",
+      "error_message": "CSS fix: color, background",
+      "file": "public/css/style.css",
+      "root_cause": "color: var(--text-primary) → white; background: var(--hover-bg) → #dc2626",
+      "fix": "Changed color: var(--text-primary) → white; background: var(--hover-bg) → #dc2626",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:30:51.391Z"
+    },
+    {
+      "id": "bug-025",
+      "timestamp": "2026-06-10T22:45:00.000Z",
+      "error_message": "ParseError: syntax error, unexpected token \"endforeach\", expecting \"elseif\" or \"else\" or \"endif\" in resources/views/friends/requests.blade.php:77",
+      "file": "resources/views/friends/requests.blade.php",
+      "root_cause": "Multiple consecutive single-line inline @if(...)...@endif directives stacked on separate lines (filiere/promotion meta block) confused Blade's compiler, which failed to close an @if before @endforeach. The middot ' · ' literal between directives aggravated tokenization.",
+      "fix": "Replaced the stacked inline @if blocks with a single @php block that builds the meta string via array_filter + implode(' · ', ...), then echoed once with {{ $meta }}. Applied to both the pending-requests loop and the friends loop.",
+      "tags": [
+        "blade",
+        "parse-error",
+        "template",
+        "friendships"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:45:00.000Z"
+    },
+    {
+      "id": "bug-026",
+      "timestamp": "2026-06-10T22:39:12.699Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/portfolio/edit.blade.php",
+      "root_cause": "6 lines replaced/restructured",
+      "fix": "Rewrote 9→54 lines (6 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:39:12.699Z"
+    },
+    {
+      "id": "bug-027",
+      "timestamp": "2026-06-10T22:50:32.179Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_10_225019_add_account_type_to_users_table.php",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 14→14 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:50:32.179Z"
+    },
+    {
+      "id": "bug-028",
+      "timestamp": "2026-06-10T22:51:49.415Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/Http/Controllers/AuthController.php",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 15→31 lines (7 removed) | Also: // Block non-uit.ac.ma emails before attempting au; if (!preg_match('/^.+@([a-zA-Z0-9\\-]+\\.)*uit\\.ac\\.",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-10T22:51:58.617Z"
+    },
+    {
+      "id": "bug-029",
+      "timestamp": "2026-06-10T22:54:52.916Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/portfolio/show.blade.php",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 13→19 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-10T22:54:52.916Z"
+    },
+    {
+      "id": "bug-030",
+      "timestamp": "2026-06-11T12:11:10.921Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/Http/Controllers/AuthController.php",
+      "root_cause": "Had 'public'",
+      "fix": "Changed to 'local'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:11:10.921Z"
+    },
+    {
+      "id": "bug-031",
+      "timestamp": "2026-06-11T12:11:33.552Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/Http/Controllers/StudentPortfolioController.php",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 4→5 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:11:33.552Z"
+    },
+    {
+      "id": "bug-032",
+      "timestamp": "2026-06-11T12:11:37.610Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/Http/Controllers/StudentPortfolioController.php",
+      "root_cause": "Had 'public'",
+      "fix": "Changed to 'local'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:11:37.610Z"
+    },
+    {
+      "id": "bug-033",
+      "timestamp": "2026-06-11T12:30:00.000Z",
+      "error_message": "CVs, rapports de stage et badges accessibles publiquement via /storage/... malgre le controle cvVisibleTo dans la vue",
+      "file": "app/Http/Controllers/StudentPortfolioController.php",
+      "root_cause": "Fichiers sensibles stockes sur le disque public (store(..., public)) — le symlink storage:link les sert a quiconque a l URL, le check de vue ne protege que le bouton",
+      "fix": "Stockage bascule sur le disque local (prive), SecureFileController + routes /files/cv/{user} et /files/report/{internship} avec autorisation (UserPolicy@viewCv), badge servi via route admin, fichiers existants migres, 7 tests SecureFileTest",
+      "tags": [
+        "security",
+        "storage",
+        "authorization",
+        "cv"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:30:00.000Z"
+    },
+    {
+      "id": "bug-034",
+      "timestamp": "2026-06-11T12:45:00.000Z",
+      "error_message": "Error: Class App\\Http\\Controllers\\Gate not found in PostController.php:120 — 500 sur edit/update/delete d article",
+      "file": "app/Http/Controllers/PostController.php",
+      "root_cause": "Gate::allows() utilise aux lignes 103/120/149 sans import use Illuminate\\Support\\Facades\\Gate (ajout externe du systeme de roles)",
+      "fix": "Ajout de l import Illuminate\\Support\\Facades\\Gate",
+      "tags": [
+        "missing-import",
+        "gate",
+        "php",
+        "500"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:45:00.000Z"
+    },
+    {
+      "id": "bug-035",
+      "timestamp": "2026-06-11T12:50:00.000Z",
+      "error_message": "AuthenticationTest echouait : register/login avec test@example.com bloques par la regle uit.ac.ma",
+      "file": "tests/Feature/AuthenticationTest.php",
+      "root_cause": "Tests ecrits avant la restriction de domaine etudiante — emails example.com refuses par RegisterRequest et AuthController",
+      "fix": "Tests mis a jour avec emails @uit.ac.ma + 2 nouveaux tests verifiant que les emails externes sont bien refuses",
+      "tags": [
+        "tests",
+        "uit-domain",
+        "auth"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:50:00.000Z"
+    },
+    {
+      "id": "bug-036",
+      "timestamp": "2026-06-11T12:28:59.644Z",
+      "error_message": "Significant refactor of ",
+      "file": "public/css/style.css",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 10→18 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-11T12:28:59.644Z"
+    },
+    {
+      "id": "bug-037",
+      "timestamp": "2026-06-15T11:58:26.558Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "Had ') || Request::is('",
+      "fix": "Changed to ') ? '",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T11:58:26.558Z"
+    },
+    {
+      "id": "bug-038",
+      "timestamp": "2026-06-15T12:06:53.905Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "Had ') ? '",
+      "fix": "Changed to ') || Request::is('",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T12:06:53.905Z"
+    },
+    {
+      "id": "bug-039",
+      "timestamp": "2026-06-15T12:07:00.074Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/parcours/index.blade.php",
+      "root_cause": "Had \"prc-card glass\"",
+      "fix": "Changed to \"prc-card glass {{ $p['",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T12:07:00.074Z"
+    },
+    {
+      "id": "bug-040",
+      "timestamp": "2026-06-15T12:56:46.770Z",
+      "error_message": "Missing guard clause",
+      "file": "resources/views/majors/show.blade.php",
+      "root_cause": "No early return/throw for edge case: $major->video_path",
+      "fix": "Added guard clause: if ($major->video_path)",
+      "tags": [
+        "auto-detected",
+        "guard-clause",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T12:56:46.770Z"
+    },
+    {
+      "id": "bug-041",
+      "timestamp": "2026-06-15T22:41:52.694Z",
+      "error_message": "Wrong return value",
+      "file": "app/Http/Controllers/ClubController.php",
+      "root_cause": "Was returning: view('clubs.show', compact('club'));",
+      "fix": "Now returns: view('clubs.show', compact('club', 'bureau', 'adhe",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:41:52.694Z"
+    },
+    {
+      "id": "bug-042",
+      "timestamp": "2026-06-15T22:43:49.816Z",
+      "error_message": "Null/undefined access in ",
+      "file": "resources/views/clubs/show.blade.php",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:43:49.816Z"
+    },
+    {
+      "id": "bug-043",
+      "timestamp": "2026-06-15T22:56:43.803Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_15_225617_create_events_table.php",
+      "root_cause": "3 lines replaced/restructured",
+      "fix": "Rewrote 13→27 lines (3 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:56:43.803Z"
+    },
+    {
+      "id": "bug-044",
+      "timestamp": "2026-06-15T22:58:31.291Z",
+      "error_message": "Wrong return value",
+      "file": "app/Http/Controllers/EventController.php",
+      "root_cause": "Was returning: view('events.index', compact('upcoming', 'past'));",
+      "fix": "Now returns: view('events.index', compact('upcoming', 'past', '",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:58:31.291Z"
+    },
+    {
+      "id": "bug-045",
+      "timestamp": "2026-06-15T22:59:16.581Z",
+      "error_message": "Wrong return value",
+      "file": "app/Http/Controllers/ClubController.php",
+      "root_cause": "Was returning: view('clubs.show', compact('club', 'bureau', 'adhe",
+      "fix": "Now returns: view('clubs.show', compact('club', 'bureau', 'adhe",
+      "tags": [
+        "auto-detected",
+        "return-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:59:16.581Z"
+    },
+    {
+      "id": "bug-046",
+      "timestamp": "2026-06-15T22:59:28.229Z",
+      "error_message": "Wrong condition in logic",
+      "file": "resources/views/clubs/show.blade.php",
+      "root_cause": "Condition was: if ($bureau->isNotEmpty()",
+      "fix": "Changed to: if (isset($events)",
+      "tags": [
+        "auto-detected",
+        "logic-fix",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T22:59:28.229Z"
+    },
+    {
+      "id": "bug-047",
+      "timestamp": "2026-06-15T23:11:01.151Z",
+      "error_message": "Null/undefined access in ",
+      "file": "app/Http/Controllers/CommentController.php",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T23:11:01.151Z"
+    },
+    {
+      "id": "bug-048",
+      "timestamp": "2026-06-15T23:14:57.829Z",
+      "error_message": "Wrong reference: push should be send",
+      "file": "app/Models/UserNotification.php",
+      "root_cause": "Used \"push\" instead of \"send\"",
+      "fix": "Changed push → send",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T23:14:57.829Z"
+    },
+    {
+      "id": "bug-049",
+      "timestamp": "2026-06-15T23:17:39.586Z",
+      "error_message": "Wrong reference: DashboardController should be StudentDashboardController",
+      "file": "routes/web.php",
+      "root_cause": "Used \"DashboardController\" instead of \"StudentDashboardController\"",
+      "fix": "Changed DashboardController → StudentDashboardController",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T23:17:39.586Z"
+    },
+    {
+      "id": "bug-050",
+      "timestamp": "2026-06-15T23:25:27.151Z",
+      "error_message": "Incorrect value in code",
+      "file": "routes/web.php",
+      "root_cause": "Had '/students/{user}'",
+      "fix": "Changed to '/students/{user}/cv.pdf'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-15T23:25:27.151Z"
+    },
+    {
+      "id": "bug-051",
+      "timestamp": "2026-06-16T14:55:33.745Z",
+      "error_message": "CSS fix: height, margin",
+      "file": "public/css/style.css",
+      "root_cause": "height: 150px → 115px; margin: -38px 0 → -28px 0",
+      "fix": "Changed height: 150px → 115px; margin: -38px 0 → -28px 0",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T14:55:33.745Z"
+    },
+    {
+      "id": "bug-052",
+      "timestamp": "2026-06-16T14:55:51.724Z",
+      "error_message": "Significant refactor of ",
+      "file": "public/css/style.css",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 19→96 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T14:55:51.724Z"
+    },
+    {
+      "id": "bug-053",
+      "timestamp": "2026-06-16T15:04:32.315Z",
+      "error_message": "Wrong reference: nav should be navbar",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "Used \"nav\" instead of \"navbar\"",
+      "fix": "Changed nav → navbar",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T15:04:32.315Z"
+    },
+    {
+      "id": "bug-054",
+      "timestamp": "2026-06-16T15:04:43.053Z",
+      "error_message": "CSS fix: padding, justify-content, gap",
+      "file": "public/css/style.css",
+      "root_cause": "padding: 16px 0 → 0; justify-content: space-between → flex-end; gap: 20px → 24px",
+      "fix": "Changed padding: 16px 0 → 0; justify-content: space-between → flex-end; gap: 20px → 24px",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-16T15:05:17.741Z"
+    },
+    {
+      "id": "bug-055",
+      "timestamp": "2026-06-16T16:37:46.843Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_16_163724_add_sharing_to_messages_and_create_reposts.php",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 16→29 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:37:46.844Z"
+    },
+    {
+      "id": "bug-056",
+      "timestamp": "2026-06-16T16:37:50.033Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_16_163724_add_attachments_and_reposts.php",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 12→29 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:37:50.033Z"
+    },
+    {
+      "id": "bug-057",
+      "timestamp": "2026-06-16T16:40:26.291Z",
+      "error_message": "Significant refactor of ",
+      "file": "app/Http/Controllers/MessageController.php",
+      "root_cause": "7 lines replaced/restructured",
+      "fix": "Rewrote 21→46 lines (7 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:40:26.291Z"
+    },
+    {
+      "id": "bug-058",
+      "timestamp": "2026-06-16T16:40:33.650Z",
+      "error_message": "Incorrect value in code",
+      "file": "app/Http/Controllers/MessageController.php",
+      "root_cause": "Had 'created_at'",
+      "fix": "Changed to 'sharedPost'",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:40:33.650Z"
+    },
+    {
+      "id": "bug-059",
+      "timestamp": "2026-06-16T16:41:10.559Z",
+      "error_message": "Null/undefined access in ",
+      "file": "resources/views/messages/index.blade.php",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check)",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:41:10.559Z"
+    },
+    {
+      "id": "bug-060",
+      "timestamp": "2026-06-16T16:41:24.921Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/messages/index.blade.php",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 7→15 lines (2 removed) | Also: .msg-composer input:focus { border-color: #6EE7B7;; .msg-composer button { width: 44px; height: 44px; ",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-16T16:41:54.483Z"
+    },
+    {
+      "id": "bug-061",
+      "timestamp": "2026-06-16T16:43:00.187Z",
+      "error_message": "Wrong reference: SearchController should be RepostController",
+      "file": "routes/web.php",
+      "root_cause": "Used \"SearchController\" instead of \"RepostController\"",
+      "fix": "Changed SearchController → RepostController",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T16:43:00.187Z"
+    },
+    {
+      "id": "bug-062",
+      "timestamp": "2026-06-16T16:44:23.366Z",
+      "error_message": "Null/undefined access in ",
+      "file": "resources/views/posts/show.blade.php",
+      "root_cause": "Property access on potentially null/undefined value",
+      "fix": "Added null safety (optional chaining or null check) | Also: {{-- Articles repostés --}}; @if($user->reposts->isNotEmpty())",
+      "tags": [
+        "auto-detected",
+        "null-safety",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-16T16:44:59.798Z"
+    },
+    {
+      "id": "bug-063",
+      "timestamp": "2026-06-16T19:44:02.623Z",
+      "error_message": "Significant refactor of ",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "4 lines replaced/restructured",
+      "fix": "Rewrote 4→25 lines (4 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T19:44:02.623Z"
+    },
+    {
+      "id": "bug-064",
+      "timestamp": "2026-06-16T19:57:01.868Z",
+      "error_message": "Significant refactor of ",
+      "file": "database/migrations/2026_06_16_195637_create_ecosystem_tables.php",
+      "root_cause": "5 lines replaced/restructured",
+      "fix": "Rewrote 15→51 lines (5 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T19:57:01.868Z"
+    },
+    {
+      "id": "bug-065",
+      "timestamp": "2026-06-16T19:59:03.115Z",
+      "error_message": "Significant refactor of ",
+      "file": "routes/web.php",
+      "root_cause": "8 lines replaced/restructured",
+      "fix": "Rewrote 8→13 lines (8 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T19:59:03.115Z"
+    },
+    {
+      "id": "bug-066",
+      "timestamp": "2026-06-16T20:24:40.188Z",
+      "error_message": "Wrong reference: update should be forceFill",
+      "file": "database/seeders/DatabaseSeeder.php",
+      "root_cause": "Used \"update\" instead of \"forceFill\"",
+      "fix": "Changed update → forceFill",
+      "tags": [
+        "auto-detected",
+        "wrong-reference",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T20:24:40.188Z"
+    },
+    {
+      "id": "bug-067",
+      "timestamp": "2026-06-16T20:29:08.846Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/admin/recruiters.blade.php",
+      "root_cause": "Had \"{{ Storage::url($recruiter->badge_path) }}\"",
+      "fix": "Changed to \"{{ route('",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T20:29:08.846Z"
+    },
+    {
+      "id": "bug-068",
+      "timestamp": "2026-06-16T20:29:42.169Z",
+      "error_message": "CSS fix: flex, gap",
+      "file": "public/css/style.css",
+      "root_cause": "flex: 1 → 0 0 auto; gap: 24px → 14px",
+      "fix": "Changed flex: 1 → 0 0 auto; gap: 24px → 14px",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 4,
+      "last_seen": "2026-06-16T20:34:29.827Z"
+    },
+    {
+      "id": "bug-069",
+      "timestamp": "2026-06-16T20:36:27.813Z",
+      "error_message": "Incorrect value in code",
+      "file": "resources/views/layouts/app.blade.php",
+      "root_cause": "Had ') }}\"",
+      "fix": "Changed to ') }}?v={{ filemtime(public_path('",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "php"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T20:36:27.813Z"
+    },
+    {
+      "id": "bug-070",
+      "timestamp": "2026-06-16T20:41:50.889Z",
+      "error_message": "CSS fix: height",
+      "file": "public/css/style.css",
+      "root_cause": "height: 44px → 56px",
+      "fix": "Changed height: 44px → 56px",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-16T20:43:03.521Z"
+    },
+    {
+      "id": "bug-071",
+      "timestamp": "2026-06-16T20:51:58.269Z",
+      "error_message": "CSS fix: gap",
+      "file": "public/css/style.css",
+      "root_cause": "gap: 4px → 6px",
+      "fix": "Changed gap: 4px → 6px",
+      "tags": [
+        "auto-detected",
+        "style-fix",
+        "css"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-16T20:51:58.269Z"
+    }
+  ]
 }

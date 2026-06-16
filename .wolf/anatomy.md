@@ -1,13 +1,13 @@
 # anatomy.md
 
-> Auto-maintained by OpenWolf. Last scanned: 2026-06-05T16:26:09.014Z
-> Files: 517 tracked | Anatomy hits: 0 | Misses: 0
+> Auto-maintained by OpenWolf. Last scanned: 2026-06-16T20:51:58.162Z
+> Files: 600 tracked | Anatomy hits: 0 | Misses: 0
 
 ## ./
 
 - `.editorconfig` — Editor configuration (~68 tok)
 - `.gitattributes` — Git attributes (~50 tok)
-- `.gitignore` — Git ignore rules (~76 tok)
+- `.gitignore` — Git ignore rules (~78 tok)
 - `.phpunit.result.cache` (~228 tok)
 - `artisan` — Laravel CLI entry point (~114 tok)
 - `CLAUDE.md` — OpenWolf (~57 tok)
@@ -27,35 +27,79 @@
 
 ## app/Http/Controllers/
 
-- `AuthController.php` — Show the registration form. (~580 tok)
-- `ClubController.php` — index (~591 tok)
-- `CommentController.php` — Store a newly created comment in storage. (~159 tok)
+- `AuthController.php` — Show the registration form. (~1440 tok)
+- `ClubController.php` — index, show, store (~322 tok)
+- `CommentController.php` — Store a newly created comment in storage. (~378 tok)
 - `Controller.php` — Controller: Controller (~21 tok)
+- `DashboardController.php` — Tableau de bord personnel de l'étudiant connecté. (~311 tok)
+- `EcosystemController.php` — aiSpace, findTeammates, storeTeamPost, closeTeamPost, lostFound + 4 more (~1757 tok)
+- `EventController.php` — Agenda global de tous les événements à venir (+ passés récents). (~372 tok)
+- `FriendshipController.php` — send, cancel, accept, reject, unfriend + 1 more (~915 tok)
 - `HomeController.php` — Display the landing page with the 3 most recent articles. (~178 tok)
+- `MajorCommentController.php` — store (~156 tok)
 - `MajorController.php` — index, show (~159 tok)
+- `MajorRatingController.php` — store (~177 tok)
+- `MajorVideoController.php` — upload (~284 tok)
+- `MessageController.php` — Boîte de réception : liste des conversations. (~1420 tok)
 - `MyPostsController.php` — Display a paginated list of the logged‑in user's posts with comments. (~159 tok)
-- `PostController.php` — Display a listing of the resource. (~1051 tok)
+- `NotificationController.php` — index, open (~223 tok)
+- `ParcoursController.php` — Présente l'offre de formation complète de l'ENSA Kénitra (~3565 tok)
+- `PostController.php` — Display a listing of the resource. (~1441 tok)
 - `ProfileController.php` — Show the profile edit form. (~283 tok)
 - `RatingController.php` — Store or update a rating for a post by the authenticated user. (~271 tok)
+- `RepostController.php` — Ajoute / retire un article des articles repostés sur le portfolio. (~156 tok)
+- `SearchController.php` — Recherche globale : articles, filières, clubs et étudiants. (~370 tok)
+- `SecureFileController.php` — Serves sensitive uploaded files (CVs, internship reports) from the (~317 tok)
+- `StudentPortfolioController.php` — Génère un CV PDF propre à partir des données du portfolio. (~1392 tok)
+- `TalentController.php` — Annuaire des talents — réservé aux recruteurs vérifiés (et aux admins). (~483 tok)
+
+## app/Http/Controllers/Admin/
+
+- `RecruiterController.php` — Serve the recruiter's work badge from the private disk. (~575 tok)
+
+## app/Http/Middleware/
+
+- `EnsureAdmin.php` — Handle an incoming request. (~145 tok)
+- `EnsureUitDomain.php` — EnsureUitDomain: handle (~250 tok)
+- `IsAdmin.php` — Handle an incoming request. (~208 tok)
+
+## app/Http/Requests/
+
+- `RegisterRequest.php` — Determine if the user is authorized to make this request. (~930 tok)
 
 ## app/Models/
 
+- `Club.php` — Tous les membres du club (avec leur rôle via la table pivot). (~363 tok)
 - `Comment.php` — Get the post that owns the comment. (~112 tok)
+- `Event.php` — Étudiants inscrits à l'événement. (~216 tok)
 - `FooterLink.php` — Model — table: footer_links, 3 fields, 1 scopes (~130 tok)
-- `Major.php` — Model — 8 fields, 2 casts, 2 rels (~206 tok)
+- `Friendship.php` — Model — 3 fields, 2 rels (~104 tok)
+- `Internship.php` — Model — 8 fields, 1 rels (~88 tok)
+- `JobOffer.php` — Model — 8 fields, 1 rels (~91 tok)
+- `LostFoundItem.php` — Model — 9 fields, 1 rels (~107 tok)
+- `Major.php` — Helper to compute average rating for the review system. (~354 tok)
 - `MajorComment.php` — Model — 3 fields, 2 rels (~118 tok)
 - `MajorRating.php` — Model — 3 fields, 2 rels (~118 tok)
-- `Post.php` — The attributes that are mass assignable. (~378 tok)
+- `Message.php` — Article partagé dans ce message (le cas échéant). (~294 tok)
+- `Post.php` — Generate a unique slug from a title. (~956 tok)
+- `Project.php` — Model — 9 fields, 1 rels (~109 tok)
 - `Rating.php` — The user (reader) who gave the rating. (~147 tok)
-- `User.php` — use Illuminate\Contracts\Auth\MustVerifyEmail; (~349 tok)
+- `Repost.php` — Model — 2 fields, 2 rels (~87 tok)
+- `TeamPost.php` — Compétences sous forme de tableau. (~137 tok)
+- `User.php` — Model — 18 fields, 13 rels (~2228 tok)
+- `UserNotification.php` — Helper pour créer une notification (ignore si destinataire = expéditeur). (~237 tok)
+
+## app/Policies/
+
+- `UserPolicy.php` — Determine whether the user can view any models. (~412 tok)
 
 ## app/Providers/
 
-- `AppServiceProvider.php` — Register any application services. (~178 tok)
+- `AppServiceProvider.php` — Register any application services. (~852 tok)
 
 ## bootstrap/
 
-- `app.php` (~140 tok)
+- `app.php` (~216 tok)
 - `providers.php` (~24 tok)
 
 ## bootstrap/cache/
@@ -100,12 +144,34 @@
 - `2026_06_04_234234_backfill_slugs_to_posts_table.php` — Run the migrations. (~238 tok)
 - `2026_06_05_000001_add_views_to_posts_table.php` — Migration: alter posts table (~139 tok)
 - `2026_06_05_000002_create_ratings_table.php` — Migration: create ratings table (~184 tok)
+- `2026_06_10_202837_add_is_admin_to_users_table.php` — Migration: alter users table (~142 tok)
+- `2026_06_10_203819_fix_major_comments_and_ratings_columns.php` — Migration: alter major_comments table (~526 tok)
+- `2026_06_10_205141_create_clubs_table.php` — Migration: create clubs table (~160 tok)
+- `2026_06_10_205841_add_details_to_clubs_table.php` — Migration: alter clubs table (~379 tok)
+- `2026_06_10_215723_add_portfolio_fields_to_users_table.php` — Run the migrations. (~308 tok)
+- `2026_06_10_215724_create_projects_table.php` — Run the migrations. (~286 tok)
+- `2026_06_10_215726_create_internships_table.php` — Run the migrations. (~266 tok)
+- `2026_06_10_222706_add_phone_privacy_to_users_table.php` — Run the migrations. (~164 tok)
+- `2026_06_10_222708_create_friendships_table.php` — Run the migrations. (~232 tok)
+- `2026_06_10_225019_add_account_type_to_users_table.php` — Run the migrations. (~249 tok)
+- `2026_06_15_224125_create_club_user_table.php` — Run the migrations. (~276 tok)
+- `2026_06_15_225617_create_events_table.php` — Run the migrations. (~358 tok)
+- `2026_06_15_230116_create_messages_table.php` — Run the migrations. (~227 tok)
+- `2026_06_15_230816_create_user_notifications_table.php` — Run the migrations. (~273 tok)
+- `2026_06_16_163724_add_attachments_and_reposts.php` — Run the migrations. (~416 tok)
+- `2026_06_16_163724_add_sharing_to_messages_and_create_reposts.php` — Run the migrations. (~404 tok)
+- `2026_06_16_195637_create_ecosystem_tables.php` — Run the migrations. (~675 tok)
 
 ## database/seeders/
 
-- `DatabaseSeeder.php` — Seed the application's database. (~5168 tok)
+- `CategorySeeder.php` — CategorySeeder: run (~274 tok)
+- `ClubMemberSeeder.php` — ClubMemberSeeder: run (~1215 tok)
+- `ClubSeeder.php` — ClubSeeder: run (~2665 tok)
+- `DatabaseSeeder.php` — Seed the application's database. (~11227 tok)
+- `EcosystemSeeder.php` — EcosystemSeeder: run (~1159 tok)
+- `EventSeeder.php` — EventSeeder: run (~1052 tok)
 - `FooterLinkSeeder.php` — Run the database seeds. (~321 tok)
-- `MajorSeeder.php` — Database seeder: MajorSeeder (~869 tok)
+- `MajorSeeder.php` — MajorSeeder: run (~3748 tok)
 
 ## public/
 
@@ -115,7 +181,7 @@
 
 ## public/css/
 
-- `style.css` — Styles: 63 rules, 36 vars (~8473 tok)
+- `style.css` — Styles: 66 rules, 36 vars (~10300 tok)
 
 ## resources/css/
 
@@ -130,25 +196,82 @@
 
 - `clubs.blade.php` — Blade: extends layouts.app, sections: title, content (~811 tok)
 - `cookies.blade.php` — Blade: cookies (~391 tok)
-- `home.blade.php` — Blade: extends layouts.app, sections: title, content (~5299 tok)
+- `home.blade.php` — Blade: extends layouts.app, sections: title, content (~3891 tok)
 - `welcome.blade.php` — Blade: welcome (~22019 tok)
+
+## resources/views/admin/
+
+- `recruiters.blade.php` — Blade: extends layouts.app, sections: title, content (~3392 tok)
 
 ## resources/views/auth/
 
 - `login.blade.php` — Blade: extends layouts.app, sections: title, content, 1 form(s) (~724 tok)
-- `register.blade.php` — Blade: extends layouts.app, sections: title, content, 1 form(s) (~874 tok)
+- `register.blade.php` — Blade: extends layouts.app, sections: title, content (~3982 tok)
+- `verify-email.blade.php` — Blade: extends layouts.app, sections: title, content (~484 tok)
+
+## resources/views/clubs/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~3361 tok)
+- `show.blade.php` — Blade: extends layouts.app, sections: title, content (~9208 tok)
 
 ## resources/views/components/
 
 - `cookie-banner.blade.php` — Blade: cookie-banner (~146 tok)
 
+## resources/views/dashboard/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~2840 tok)
+
+## resources/views/ecosystem/
+
+- `ai-space.blade.php` — Blade: extends layouts.app, sections: title, content (~1572 tok)
+- `career-center.blade.php` — Blade: extends layouts.app, sections: title, content (~2401 tok)
+- `find-teammates.blade.php` — Blade: extends layouts.app, sections: title, content (~2268 tok)
+- `lost-found.blade.php` — Blade: extends layouts.app, sections: title, content (~2330 tok)
+
+## resources/views/errors/
+
+- `403.blade.php` — Blade: extends layouts.app, sections: title, content (~440 tok)
+- `404.blade.php` — Blade: extends layouts.app, sections: title, content (~481 tok)
+- `419.blade.php` — Blade: extends layouts.app, sections: title, content (~463 tok)
+- `500.blade.php` — Blade template (~481 tok)
+
+## resources/views/events/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~2171 tok)
+
+## resources/views/friends/
+
+- `requests.blade.php` — Blade: extends layouts.app, sections: title, content (~3223 tok)
+
 ## resources/views/layouts/
 
-- `app.blade.php` — Blade: 1 form(s), 1 component(s) (~2692 tok)
+- `app.blade.php` — Blade template (~7289 tok)
 
 ## resources/views/majors/
 
-- `show.blade.php` — Blade: extends layouts.app, sections: title, content, 2 form(s) (~2041 tok)
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~727 tok)
+- `show.blade.php` — Blade: extends layouts.app, sections: title, content (~9782 tok)
+
+## resources/views/messages/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~4048 tok)
+- `share.blade.php` — Blade: extends layouts.app, sections: title, content (~1810 tok)
+
+## resources/views/notifications/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~1026 tok)
+
+## resources/views/parcours/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~2795 tok)
+- `show.blade.php` — Blade: extends layouts.app, sections: title, content (~1982 tok)
+
+## resources/views/portfolio/
+
+- `edit.blade.php` — Blade: extends layouts.app, sections: title, content (~8014 tok)
+- `pdf.blade.php` — Blade template (~983 tok)
+- `show.blade.php` — Blade: extends layouts.app, sections: title, content (~12518 tok)
 
 ## resources/views/posts/
 
@@ -159,17 +282,29 @@
 - `MajorRating.php` — Model — 3 fields, 2 rels (~118 tok)
 - `MajorSeeder.php` — Database seeder: MajorSeeder (~869 tok)
 - `my_posts.blade.php` — Blade: extends layouts.app, sections: title, content, 1 form(s), 1 table(s) (~1702 tok)
-- `show.blade.php` — Blade: extends layouts.app, sections: title, content, 3 form(s) (~2218 tok)
+- `show.blade.php` — Blade: extends layouts.app, sections: title, content (~4411 tok)
 
 ## resources/views/profile/
 
 - `edit.blade.php` — Blade: extends layouts.app, sections: title, content, 1 form(s) (~969 tok)
 
+## resources/views/search/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~1882 tok)
+
+## resources/views/talents/
+
+- `index.blade.php` — Blade: extends layouts.app, sections: title, content (~1934 tok)
+
+## resources/views/vendor/pagination/
+
+- `custom.blade.php` — Blade template (~451 tok)
+
 ## routes/
 
 - `console.php` (~56 tok)
 - `index.blade.php` — Blade: extends layouts.app, sections: title, content (~414 tok)
-- `web.php` (~883 tok)
+- `web.php` (~3714 tok)
 
 ## storage/app/
 
@@ -264,9 +399,11 @@
 
 ## tests/Feature/
 
+- `AuthenticationTest.php` — AuthenticationTest: test_users_can_register, test_students_cannot_register_with_external_email, test (~529 tok)
 - `CommentTest.php` — Test that comments can be displayed on a post details page. (~730 tok)
 - `ExampleTest.php` — A basic test example. (~103 tok)
 - `ProfileTest.php` — Test guest users are redirected to login. (~912 tok)
+- `SecureFileTest.php` — The CV access rule is the most sensitive rule of the platform: (~974 tok)
 
 ## tests/Unit/
 

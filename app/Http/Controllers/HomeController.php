@@ -15,7 +15,7 @@ class HomeController extends Controller
     public function index()
     {
         // Eager load 'user' pour éviter le problème N+1 dans la boucle des articles
-        $posts = Post::with('user')->latest()->take(3)->get();
+        $posts = Post::with('user')->withAvg('ratings as average_rating', 'rating')->latest()->take(3)->get();
 
         $postsCount = Post::count();
         $commentsCount = Comment::count();

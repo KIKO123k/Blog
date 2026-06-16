@@ -11,12 +11,12 @@
 <div class="posts-grid mt-12">
     @php
         $imageMap = [
-            'genie-reseaux-telecommunications' => 'major_telecom.png',
-            'genie-informatique' => 'major_informatique.png',
-            'genie-industriel' => 'major_industriel.png',
-            'genie-electrique' => 'major_electrique.png',
-            'genie-mecatronique' => 'major_mechatronique.png',
-            'efficacite-energetique-batiment-intelligent' => 'major_energetique.png',
+            'reseaux-et-systemes-de-telecommunications'    => 'major_telecom.png',
+            'genie-informatique'                            => 'major_informatique.png',
+            'genie-industriel'                              => 'major_industriel.png',
+            'genie-electrique'                              => 'major_electrique.png',
+            'genie-mecatronique'                            => 'major_mechatronique.png',
+            'genie-energetique-et-energies-renouvelables'  => 'major_energetique.png',
         ];
     @endphp
     @foreach($majors as $major)
@@ -39,6 +39,10 @@
                 <p class="post-card-excerpt">
                     {{ Str::limit($major->description, 120) }}
                 </p>
+                <div class="flex items-center gap-1 mt-4">
+                    <span class="text-amber-500 font-bold">★</span>
+                    <span class="text-xs font-semibold text-gray-600">{{ $major->average_rating }} / 5</span>
+                </div>
                 <div class="post-card-footer">
                     <a href="{{ route('majors.show', $major->slug) }}" class="read-more-link">
                         Découvrir la filière

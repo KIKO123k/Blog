@@ -6,7 +6,7 @@
 
     <!-- Bouton de retour -->
     <div class="back-link-wrapper">
-        <a href="{{ route('posts.show', $post->id) }}" class="back-link">
+        <a href="{{ route('posts.show', $post) }}" class="back-link">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
                 <polyline points="12 19 5 12 12 5"></polyline>
@@ -23,7 +23,7 @@
             <p>Apportez vos modifications aux champs ci-dessous puis validez la mise à jour.</p>
         </div>
 
-        <form action="{{ route('posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('posts.update', $post) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -46,6 +46,24 @@
                     <span class="error-text">{{ $message }}</span>
                 @enderror
             </div>
+
+            @if(isset($categories) && $categories->count() > 0)
+                <div class="form-group">
+                    <label class="form-label">Catégories (optionnel)</label>
+                    <div class="category-checkboxes">
+                        @foreach($categories as $category)
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                                    {{ in_array($category->id, old('categories', $selectedCategoryIds ?? [])) ? 'checked' : '' }}>
+                                {{ $category->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('categories')
+                        <span class="error-text">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
 
             <!-- Champ : Image (avec aperçu de l'image existante) -->
             <div class="form-group">
@@ -78,7 +96,7 @@
 
             <!-- Boutons d'action -->
             <div class="form-actions">
-                <a href="{{ route('posts.show', $post->id) }}" class="btn btn-secondary">Annuler</a>
+                <a href="{{ route('posts.show', $post) }}" class="btn btn-secondary">Annuler</a>
                 <button type="submit" class="btn btn-primary">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>

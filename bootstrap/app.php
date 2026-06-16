@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \Inertia\Middleware::class,
+            \App\Http\Middleware\EnsureUitDomain::class,
+        ]);
+
+        $middleware->alias([
+            'admin' => \App\Http\Middleware\IsAdmin::class,
+            'author' => \App\Http\Middleware\IsAuthor::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

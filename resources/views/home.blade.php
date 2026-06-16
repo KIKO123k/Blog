@@ -316,12 +316,12 @@
         <div class="posts-grid">
             @php
                 $imageMap = [
-                    'genie-reseaux-telecommunications' => 'major_telecom.png',
-                    'genie-informatique' => 'major_informatique.png',
-                    'genie-industriel' => 'major_industriel.png',
-                    'genie-electrique' => 'major_electrique.png',
-                    'genie-mecatronique' => 'major_mechatronique.png',
-                    'efficacite-energetique-batiment-intelligent' => 'major_energetique.png',
+                    'reseaux-et-systemes-de-telecommunications'   => 'major_telecom.png',
+                    'genie-informatique'                           => 'major_informatique.png',
+                    'genie-industriel'                             => 'major_industriel.png',
+                    'genie-electrique'                             => 'major_electrique.png',
+                    'genie-mecatronique'                           => 'major_mechatronique.png',
+                    'genie-energetique-et-energies-renouvelables'  => 'major_energetique.png',
                 ];
             @endphp
             @foreach($formations as $formation)

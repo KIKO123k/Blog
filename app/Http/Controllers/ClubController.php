@@ -2,28 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Club;
+use App\Http\Requests\StoreClubRequest;
 use Illuminate\Http\Request;
 
 class ClubController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $clubs = [
-            ['name' => 'Club Informatique', 'image' => 'informatique.jpg', 'description' => 'Innovation logicielle et développement web.'],
-            ['name' => 'Club Robotique', 'image' => 'robotique.jpg', 'description' => 'Conception et programmation de systèmes autonomes.'],
-            ['name' => 'Club IA & Data Science', 'image' => 'ia.jpg', 'description' => 'Exploration des algorithmes et du Big Data.'],
-            ['name' => 'Club Cybersécurité', 'image' => 'cybersecurite.jpg', 'description' => 'Protection des systèmes et lutte contre les cybermenaces.'],
-            ['name' => 'Club Réseaux & Télécommunications', 'image' => 'reseaux.jpg', 'description' => 'Gestion des infrastructures et protocoles de communication.'],
-            ['name' => 'Club Génie Industriel', 'image' => 'industriel.jpg', 'description' => 'Optimisation des processus et logistique moderne.'],
-            ['name' => 'Club Énergies Renouvelables', 'image' => 'energies.jpg', 'description' => 'Solutions durables pour un avenir énergétique vert.'],
-            ['name' => 'Club Entrepreneuriat', 'image' => 'entrepreneuriat.jpg', 'description' => 'De l\'idée au projet : créez votre propre startup.'],
-            ['name' => 'Club Développement Personnel', 'image' => 'developpement.jpg', 'description' => 'Soft skills, leadership et épanouissement personnel.'],
-            ['name' => 'Club Sport', 'image' => 'sport.jpg', 'description' => 'Compétitions et bien-être physique pour tous les étudiants.'],
-            ['name' => 'Club Culture & Arts', 'image' => 'culture.jpg', 'description' => 'Théâtre, musique et expression artistique sur le campus.'],
-            ['name' => 'Club Social & Humanitaire', 'image' => 'humanitaire.jpg', 'description' => 'Actions solidaires et aide aux populations locales.'],
-            ['name' => 'Club Média & Communication', 'image' => 'media.jpg', 'description' => 'Journalisme, radio et présence digitale de l\'école.'],
-        ];
+        $query = Club::query();
 
-        return view('clubs', compact('clubs'));
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                  ->orWhere('description', 'like', "%{$term}%")
+                  ->orWhere('acronym', 'like', "%{$term}%");
+            });
+        }
+
+        $clubs = $query->latest()->paginate(12)->withQueryString();
+
+        return view('clubs.index', compact('clubs'));
+    }
+
+    public function show(Club $club)
+    {
+        $bureau    = $club->bureau()->get();
+        $adherents = $club->adherents()->get();
+        $events    = $club->events()->upcoming()->withCount('participants')->get();
+
+        return view('clubs.show', compact('club', 'bureau', 'adherents', 'events'));
+    }
+
+    public function store(StoreClubRequest $request)
+    {
+        $club = Club::create($request->validated());
+        return response()->json($club, 201);
     }
 }

@@ -26,20 +26,39 @@
     <!-- Header de la section Posts (Recherche & Ajout) -->
     <div class="posts-header">
         <div>
-            @if($search)
+            @if(isset($activeCategory))
+                <h2 class="section-title">Catégorie : {{ $activeCategory->name }}</h2>
+            @elseif($search)
                 <h2 class="section-title">Résultats de recherche pour "{{ $search }}"</h2>
             @else
                 <h2 class="section-title">Articles récents</h2>
             @endif
         </div>
-        <a href="{{ route('posts.create') }}" class="btn btn-primary">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Nouvel Article
-        </a>
+        @auth
+            <a href="{{ route('posts.create') }}" class="btn btn-primary">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Nouvel Article
+            </a>
+        @endauth
     </div>
+
+    @if(isset($categories) && $categories->count() > 0)
+        <div class="category-filter">
+            <a href="{{ route('posts.index', request()->only('search')) }}"
+               class="category-chip {{ empty($categorySlug) ? 'active' : '' }}">
+                Toutes
+            </a>
+            @foreach($categories as $category)
+                <a href="{{ route('categories.show', $category) }}"
+                   class="category-chip {{ ($categorySlug ?? '') === $category->slug ? 'active' : '' }}">
+                    {{ $category->name }}
+                </a>
+            @endforeach
+        </div>
+    @endif
 
     <!-- Grille des articles -->
     @if($posts->count() > 0)
@@ -75,16 +94,17 @@
                         </p>
                         
                         <div class="post-card-footer">
+                            @php $avgRating = (int) round($post->average_rating ?? 0); @endphp
                             <div class="post-rating">
                                 @for ($i = 1; $i <= 5; $i++)
-                                    <svg class="star-icon {{ $i <= ($post->rating ?? 0) ? '' : 'empty' }}" viewBox="0 0 24 24" fill="currentColor">
+                                    <svg class="star-icon {{ $i <= $avgRating ? '' : 'empty' }}" viewBox="0 0 24 24" fill="currentColor">
                                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
                                     </svg>
                                 @endfor
-                                <span class="rating-text">({{ $post->rating ?? 0 }}/5)</span>
+                                <span class="rating-text">({{ $avgRating }}/5)</span>
                             </div>
 
-                            <a href="{{ route('posts.show', $post->id) }}" class="read-more-link">
+                            <a href="{{ route('posts.show', $post) }}" class="read-more-link">
                                 Lire l'article
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="5" y1="12" x2="19" y2="12"></line>

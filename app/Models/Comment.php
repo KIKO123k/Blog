@@ -11,6 +11,7 @@ class Comment extends Model
 
     protected $fillable = [
         'post_id',
+        'user_id',
         'author_name',
         'content',
     ];
@@ -21,5 +22,13 @@ class Comment extends Model
     public function post()
     {
         return $this->belongsTo(Post::class);
+    }
+
+    /**
+     * Get the user (author) who wrote the comment, if any.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class)->withDefault();
     }
 }

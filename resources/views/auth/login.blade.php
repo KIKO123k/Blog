@@ -51,6 +51,10 @@
             </div>
             
             <div class="auth-footer-text">
+                <a href="{{ route('password.request') }}">Mot de passe oublié ?</a>
+            </div>
+
+            <div class="auth-footer-text">
                 Pas encore de compte ? <a href="{{ route('register') }}">Inscrivez-vous ici</a>
             </div>
         </form>

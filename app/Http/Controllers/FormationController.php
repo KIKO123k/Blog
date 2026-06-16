@@ -10,8 +10,13 @@ class FormationController extends Controller
     public function index(Request $request)
     {
         $category = $request->query('category');
+        $search = $request->query('search');
 
         $formations = Formation::when($category, fn($q) => $q->where('category', $category))
+            ->when($search, function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            })
             ->orderByRaw("FIELD(category, 'preparatoire', 'cycle_ingenieur', 'formation_continue', 'doctorat')")
             ->orderBy('title')
             ->get()
@@ -24,7 +29,7 @@ class FormationController extends Controller
             'doctorat'           => 'Cycle Doctoral',
         ];
 
-        return view('formations.index', compact('formations', 'categories', 'category'));
+        return view('formations.index', compact('formations', 'categories', 'category', 'search'));
     }
 
     public function show(string $slug)

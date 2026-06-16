@@ -35,7 +35,7 @@ class CommentTest extends TestCase
             'content' => 'I love this post!',
         ]);
 
-        $response = $this->get('/posts/' . $post->id);
+        $response = $this->get('/posts/' . $post->slug);
 
         $response->assertStatus(200);
         $response->assertSee('Alice Visitor');
@@ -59,7 +59,7 @@ class CommentTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->post('/posts/' . $post->id . '/comments', [
+        $response = $this->post('/posts/' . $post->slug . '/comments', [
             'author_name' => 'Bob Visitor',
             'content' => 'This is a test comment.',
         ]);
@@ -90,7 +90,7 @@ class CommentTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->post('/posts/' . $post->id . '/comments', [
+        $response = $this->post('/posts/' . $post->slug . '/comments', [
             'author_name' => '',
             'content' => '',
         ]);

@@ -17,6 +17,8 @@ class MyPostsController extends Controller
         $posts = Post::where('user_id', $user->id)
             ->with('comments')
             ->withCount('comments')
+            ->withAvg('ratings as average_rating', 'rating')
+            ->withCount('ratings as ratings_count')
             ->orderBy('created_at', 'desc')
             ->paginate(6);
 

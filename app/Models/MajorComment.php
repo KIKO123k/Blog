@@ -9,7 +9,7 @@ class MajorComment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['major_id', 'user_id', 'content'];
+    protected $fillable = ['major_id', 'user_id', 'content', 'rating'];
 
     public function major()
     {

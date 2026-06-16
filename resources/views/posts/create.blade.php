@@ -46,8 +46,23 @@
                 @enderror
             </div>
 
-            <!-- Champ : Note -->
-
+            @if(isset($categories) && $categories->count() > 0)
+                <div class="form-group">
+                    <label class="form-label">Catégories (optionnel)</label>
+                    <div class="category-checkboxes">
+                        @foreach($categories as $category)
+                            <label class="category-checkbox">
+                                <input type="checkbox" name="categories[]" value="{{ $category->id }}"
+                                    {{ in_array($category->id, old('categories', [])) ? 'checked' : '' }}>
+                                {{ $category->name }}
+                            </label>
+                        @endforeach
+                    </div>
+                    @error('categories')
+                        <span class="error-text">{{ $message }}</span>
+                    @enderror
+                </div>
+            @endif
 
             <!-- Champ : Image (Drag & Drop Mockup Style) -->
             <div class="form-group">

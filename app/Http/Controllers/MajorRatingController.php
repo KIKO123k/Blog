@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Formation;
+use App\Models\Major;
 use App\Models\MajorRating;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +11,7 @@ class MajorRatingController extends Controller
 {
     public function store(Request $request, $id)
     {
-        $major = Formation::findOrFail($id);
+        $major = Major::findOrFail($id);
 
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',

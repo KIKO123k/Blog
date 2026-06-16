@@ -11,19 +11,15 @@ class RatingController extends Controller
 {
     /**
      * Store or update a rating for a post by the authenticated user.
+     * Route is already wrapped in 'auth' middleware, so $user is guaranteed.
      */
     public function store(Request $request, Post $post)
     {
-        // Ensure user is authenticated
-        $user = Auth::user();
-        if (!$user) {
-            return redirect()->route('login')->with('error', 'Vous devez être connecté pour noter un article.');
-        }
-
-        // Validate rating value (1-5)
         $validated = $request->validate([
             'rating' => 'required|integer|min:1|max:5',
         ]);
+
+        $user = Auth::user();
 
         // Create or update rating (one rating per user per post)
         Rating::updateOrCreate(

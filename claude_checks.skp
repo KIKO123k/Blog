@@ -1,0 +1,46 @@
+# Session Memory: ENSA Clubs Page
+
+## Current State (June 8, 2026)
+- **Complete** - Clubs page is fully production-ready
+- **Build** - Passes with 172 modules, zero errors
+- **Server** - Returns 200 with correct Inertia page and all 6 clubs' data
+
+## Files Created/Modified
+### New
+- `resources/js/Components/Navbar.jsx` — sticky navbar with bøg branding, nav links, user chip
+- `resources/js/Components/ClubCard.jsx` — card with bg image, badge, multi-layer glow hover
+- `resources/js/Components/ClubModal.jsx` — 6-tab modal (Discover/Video/Gallery/Join/Reviews/Puzzle)
+- `resources/js/Components/JoinForm.jsx` — inscription form (name, email, filière, motivation)
+- `resources/js/Components/MediaGallery.jsx` — image/video carousel with thumbnails
+- `resources/js/Components/StarRating.jsx` — interactive 5-star rating
+- `resources/js/Components/SlidingPuzzle.jsx` — 3×3 tile puzzle
+- `resources/js/data/clubs.js` — centralized data for all 6 clubs
+
+### Modified
+- `resources/js/Pages/Clubs/Index.jsx` — main page (integrated Navbar, grid, footer)
+- `app/Http/Controllers/ClubController.php` — synced data with JS source
+- `resources/css/app.css` — added 5 keyframes + thin scrollbar
+- `resources/views/app.blade.php` — **fixed**: removed conflicting style.css, pure dark theme
+- `bootstrap/app.php` — **fixed**: renamed InertiaMiddleware → Middleware (v3 API)
+
+## Key Fix Applied
+**Blade layout conflict**: `public/css/style.css` from the original project had a light theme with glassmorphism. Changed `app.blade.php` to:
+- Remove `style.css` loading
+- Add `<html class="dark">` for Tailwind dark mode
+- Body: `bg-slate-950 text-white`
+- Minimal shell — React controls all UI
+
+## Data
+6 clubs: EIC, CRER, IADS, CYBER, RST, CIELK
+- EIC/CRER have verified real Instagram/LinkedIn handles
+- Others point to verified ENSA-related pages
+- Media from Unsplash/Coverr
+
+## Routes
+- `/clubs` — Inertia page, served by `ClubController@index`
+
+## Dependencies
+- inertia-laravel v3.1.0 (server)
+- @inertiajs/inertia v0.11.1 + @inertiajs/inertia-react v0.8.1 (client)
+- React 19 + Tailwind v4
+- Vite 7.3.5

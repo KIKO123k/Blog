@@ -2,14 +2,28 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\Club;
+use App\Models\Comment;
+use App\Models\Major;
+use App\Models\MajorComment;
+use App\Models\Post;
+use App\Models\User;
+use App\Policies\CategoryPolicy;
+use App\Policies\ClubPolicy;
+use App\Policies\CommentPolicy;
+use App\Policies\MajorPolicy;
+use App\Policies\PostPolicy;
+use App\Policies\UserPolicy;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\View;
+use Illuminate\Pagination\Paginator;
 use App\Models\FooterLink;
 
-class AppServiceProvider extends ServiceProvider
+class AppServiceProvider extends \Illuminate\Support\ServiceProvider
 {
     /**
      * Register any application services.
@@ -24,6 +38,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register policies
+        Gate::policy(Post::class, PostPolicy::class);
+        Gate::policy(Major::class, MajorPolicy::class);
+        Gate::policy(Category::class, CategoryPolicy::class);
+        Gate::policy(Club::class, ClubPolicy::class);
+        Gate::policy(Comment::class, CommentPolicy::class);
+        Gate::policy(MajorComment::class, CommentPolicy::class);
+        Gate::policy(User::class, UserPolicy::class);
+
         // Share footer links across all views (Blade layouts + Inertia root)
         $shareFooter = function ($view) {
             $footerLinks = FooterLink::orderBy('order')->get();
@@ -31,6 +54,10 @@ class AppServiceProvider extends ServiceProvider
         };
         View::composer('layouts.app', $shareFooter);
         View::composer('app', $shareFooter);
+
+        // Pagination personnalisée (sans Tailwind) pour tout le site
+        Paginator::defaultView('vendor.pagination.custom');
+        Paginator::defaultSimpleView('vendor.pagination.custom');
 
         // Configure rate limiters
         $this->configureRateLimiting();
